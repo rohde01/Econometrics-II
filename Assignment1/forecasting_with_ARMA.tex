@@ -1,0 +1,52 @@
+Consider the ARMA( 1,1 ) model,
+
+$$
+y_t=\delta+\theta y_{t-1}+\varepsilon_t+\alpha \varepsilon_{t-1}
+$$
+
+
+Let ( $\hat{\delta}, \hat{\theta}, \hat{\alpha}$ ) denote estimates of ( $\delta, \theta, \alpha$ ) based on the (in-sample) data series $\left(y_t\right)_{t=1, \ldots, T}$.
+
+Note that for the ARFIMA package, you can get an estimate of $\delta$ if you specify that the constant is a so-called " Z variable", when formulating the model.
+
+To compute one-step forecasts, note that for $k=1, \ldots, 60$,
+
+$$
+E\left[y_{T+k} \mid \mathcal{I}_{T+k-1}\right]=\delta+\theta y_{T+k-1}+\alpha \varepsilon_{T+k-1}
+$$
+
+
+Consequently, in order to forecast, we need values of $\varepsilon_{T+k-1}$. These can be estimated, by noting that
+
+$$
+\varepsilon_{T+k-1}=y_{T+k-1}-\delta-\theta y_{T+k-2}-\alpha \varepsilon_{T+k-2} .
+$$
+
+
+Given estimated residuals $\left(\hat{\varepsilon}_t\right)_{t=1, \ldots, T}$, we can compute recursively.
+
+$$
+\begin{aligned}
+\hat{\varepsilon}_{T+1}= & y_{T+1}-\hat{\delta}-\hat{\theta} y_T-\hat{\alpha} \hat{\varepsilon}_T \\
+\hat{\varepsilon}_{T+2}= & y_{T+2}-\hat{\delta}-\hat{\theta} y_{T+1}-\hat{\alpha} \hat{\varepsilon}_{T+1} \\
+& \vdots \\
+\hat{\varepsilon}_{T+60}= & y_{T+60}-\hat{\delta}-\hat{\theta} y_{T+59}-\hat{\alpha} \hat{\varepsilon}_{T+59}
+\end{aligned}
+$$
+
+
+The one-step forecast are then given by
+
+$$
+\begin{aligned}
+E\left[\widehat{y_{T+1}} \mid \mathcal{I}_T\right]= & \hat{\delta}+\hat{\theta} y_T+\hat{\alpha} \hat{\varepsilon}_T \\
+E\left[y_{T+2} \mid \mathcal{I}_{T+1}\right]= & \hat{\delta}+\hat{\theta} y_{T+1}+\hat{\alpha} \hat{\varepsilon}_{T+1} \\
+& \vdots \\
+E\left[y_{T+60} \mid \mathcal{I}_{T+59}\right]= & \hat{\delta}+\hat{\theta} y_{T+59}+\hat{\alpha} \hat{\varepsilon}_{T+59}
+\end{aligned}
+$$
+
+
+This is straightforward to produce in a spreadsheet, given that you have $\left(y_t\right)_{t=1, \ldots, T}$ and $\left(\hat{\varepsilon}_t\right)_{t=1, \ldots, T}$.
+
+Clearly, this extends to ARMA $(p, q)$ models with arbitrary lag-orders $p$ and $q$.
