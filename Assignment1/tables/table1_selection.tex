@@ -1,0 +1,16 @@
+\begin{table}[H]
+  \centering
+  \caption{Model comparison: AIC, BIC, $\hat{{\sigma}}$, and Ljung-Box p-value (training sample 1990Q1--2009Q4).}
+  \label{tab:model_selection}
+  \begin{tabular}{lrrrr}
+  \toprule
+  Model & AIC & BIC & σ̂ & LB p-val (lag 8) \\
+  \midrule
+  AR(1) & -535.78 & -528.64 & 0.01 & 0.00 \\
+  AR(2) & -551.86 & -542.33 & 0.01 & 0.14 \\
+  AR(3) & -552.15 & -540.24 & 0.01 & 0.24 \\
+  AR(4) & -550.23 & -535.94 & 0.01 & 0.28 \\
+  ARMA(1,1) & -546.13 & -536.60 & 0.01 & 0.12 \\
+  \bottomrule
+  \end{tabular}
+\end{table}
