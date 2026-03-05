@@ -13,5 +13,25 @@ build/
 .ipynb_checkpoints/
 *.ipynb_checkpoints
 
+# LaTeX
+*.aux
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+*.synctex(busy)
+*.bbl
+*.blg
+*.bcf
+*.run.xml
+*.nav
+*.snm
+*.vrb
+*.xdv
+
 # macOS
 .DS_Store
