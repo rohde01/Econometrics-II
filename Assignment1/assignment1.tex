@@ -25,11 +25,15 @@ Forecasting Economic Growth and Growth-at-Risk}
 \section{Introduction}
 % ─────────────────────────────────────────────────────────────────────────────
 
-This paper proposes a univariate time series model for U.S.\ quarterly GDP growth and uses it to produce one-step-ahead point forecasts and Growth-at-Risk (GaR) estimates at the 10\% risk level. Understanding the conditional distribution of future output growth is of direct relevance for macroprudential policy and central banking, where downside risk to GDP is a key input to stress-testing frameworks (Adrian, Boyarchenko, and Giannone, 2019).
+This paper estimates a univariate model for U.S.\ quarterly GDP growth to produce one-step-ahead forecasts and 10\% Growth-at-Risk (GaR) estimates.
+We estimate AR(1)--AR(4) and ARMA(1,1) models on 1990Q1--2009Q4 and evaluate 60 out-of-sample observations from 2010Q1--2024Q4.
+\newline
+\newline
+Model selection using BIC and residual diagnostics favors AR(2).
+Its forecasts are not statistically different from a naive historical-mean benchmark (Diebold-Mariano $p=0.24$, HAC standard error), and neither AR(2)-based nor unconditional GaR is rejected by the 10\% coverage test.
+Overall, the results support recent evidence that simple univariate models can remain competitive for forecasting and risk measurement (Adrian et al., 2025).
 
-We estimate autoregressive models of order one through four, as well as an ARMA(1,1), on U.S.\ data for the period 1990Q1--2009Q4, and evaluate out-of-sample performance over 2010Q1--2024Q4 (60 observations). Model selection based on the Bayesian Information Criterion (BIC) and Ljung-Box diagnostic tests points to an AR(2) as the preferred specification. The model is then used to produce fixed-parameter one-step-ahead forecasts and to derive Gaussian conditional GaR estimates.
 
-Our main findings are: ($i$) the AR(2) forecasts are not statistically different from a naive historical-mean benchmark (Diebold-Mariano $p\text{-value}=0.24$, HAC standard error); and ($ii$) neither the AR(2) GaR nor the unconditional GaR benchmark can be rejected for correct conditional coverage at the 10\% level. These results are consistent with recent evidence that simple univariate models remain competitive with more sophisticated approaches (Adrian et al., 2025).
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -37,9 +41,9 @@ Our main findings are: ($i$) the AR(2) forecasts are not statistically different
 % ─────────────────────────────────────────────────────────────────────────────
 
 The data consist of quarterly observations from 1990Q1 to 2024Q4. The variable of interest is $y_t = \log(\text{GDPC1}_t) - \log(\text{GDPC1}_{t-4})$, the log year-on-year growth rate of U.S.\ Real GDP (GDPC1), retrieved from the FRED database; the year-on-year transformation removes seasonal effects without seasonal adjustment.
-
+\newline
 Figure~\ref{fig:gdp_growth} plots the full sample. The series fluctuates around a positive mean with no apparent trend, consistent with stationarity. Two episodes stand out: the Global Financial Crisis (2008--2009) and the COVID-19 trough in 2020Q2 (roughly $-9\%$, followed by a sharp V-shaped recovery), motivating the use of a low-order autoregressive model.
-
+\newline
 Figure~\ref{fig:acf_pacf} shows the sample autocorrelation function (ACF) and partial autocorrelation function (PACF) for the training period 1990Q1--2009Q4. The ACF decays gradually over several lags, indicating persistence, while the PACF drops sharply after lag 2 with remaining partial autocorrelations close to zero. This pattern is the classic signature of an AR(2) process, and guides our subsequent model selection.
 
 \begin{figure}[H]
@@ -55,7 +59,7 @@ Figure~\ref{fig:acf_pacf} shows the sample autocorrelation function (ACF) and pa
 \section{Econometric Theory}
 % ─────────────────────────────────────────────────────────────────────────────
 
-\subsection{The ARMA Model}
+
 
 We consider the ARMA($p$,$q$) model
 \begin{equation}\label{eq:arma}
@@ -63,18 +67,31 @@ We consider the ARMA($p$,$q$) model
         + \varepsilon_t + \theta_1 \varepsilon_{t-1} + \cdots + \theta_q \varepsilon_{t-q},
   \quad \varepsilon_t \overset{\text{i.i.d.}}{\sim} N(0,\sigma^2),
 \end{equation}
-where $y_t$ is the log year-on-year GDP growth rate and $\delta$ is the intercept. A pure AR($p$) corresponds to $q=0$. Stationarity requires that all roots of the AR polynomial $1 - \phi_1 L - \cdots - \phi_p L^p = 0$ lie outside the unit circle, under which the unconditional mean equals $\mu = \delta/(1 - \phi_1 - \cdots - \phi_p)$.
+where $y_t$ is the log year-on-year GDP growth rate and $\delta$ is the intercept. A pure AR($p$) corresponds to $q=0$. Stationarity requires that all roots of the AR polynomial $1 - \phi_1 L - \cdots - \phi_p L^p = 0$ lie outside the unit circle, under which the unconditional mean equals:
+$$\mu = \delta/(1 - \phi_1 - \cdots - \phi_p)$$.
 
 \subsection{Estimation}
 
-For a pure AR($p$) model, the parameters $\boldsymbol{\phi} = (\delta, \phi_1, \ldots, \phi_p)'$ are estimated by OLS, minimising $\sum_{t=p+1}^{T} \varepsilon_t^2(\boldsymbol{\phi})$, which is numerically equivalent to ML. Under stationarity, weak dependence, and $E[\varepsilon_t \mid \mathcal{I}_{t-1}] = 0$, the OLS estimator is consistent and asymptotically normal. For the ARMA($p$,$q$) model with $q\geq 1$, OLS is infeasible because the MA errors are unobserved; estimation proceeds via Gaussian maximum likelihood (ML), maximising
-\[
-  \ell(\boldsymbol{\phi},\boldsymbol{\theta},\sigma^2) =
-    -\tfrac{T}{2}\log(2\pi\sigma^2) - \tfrac{1}{2\sigma^2}\sum_{t=1}^T \varepsilon_t^2,
-\]
-where $\varepsilon_t$ is obtained recursively from the observed data.
+For AR($p$) models, parameters are estimated by OLS.
+With Gaussian errors, this is numerically equivalent to maximum likelihood.
+Under standard assumptions (stationarity, weak dependence, and zero conditional mean errors), the estimator is consistent and asymptotically normal.
+\newline
+\newline
+For ARMA($p$,$q$) models with $q\geq 1$, OLS is not feasible because lagged error terms are unobserved.
+We therefore estimate these models by Gaussian maximum likelihood, where residuals are computed recursively.
+Under $\varepsilon_t \sim N(0,\sigma^2)$, the (conditional) Gaussian log-likelihood is
+$$
+\ell(\boldsymbol{\phi},\boldsymbol{\theta},\sigma^2)
+=
+-\frac{T}{2}\log(2\pi\sigma^2)
+-\frac{1}{2\sigma^2}\sum_{t=1}^{T}\varepsilon_t^2,
+$$
+which is maximized with respect to $\boldsymbol{\phi}$, $\boldsymbol{\theta}$, and $\sigma^2$.
+\newline
+Model selection follows a general-to-specific (GETS) strategy.
+We begin with AR(4) and test down to simpler nested models using likelihood-ratio tests.
+Because LR tests are sensitive to non-normality, we confirm each reduction with AIC and BIC, and use BIC as the main criterion because it penalizes model complexity more strongly.
 
-Model selection follows the general-to-specific (GETS) principle: we begin with the most general model ($p=4$) and reduce sequentially using likelihood ratio (LR) tests, accepting a restriction when $H_0$ cannot be rejected. The LR statistic is $\xi_{\mathrm{LR}} = -2(\ell_{\mathrm{restricted}} - \ell_{\mathrm{unrestricted}}) \xrightarrow{d} \chi^2(j)$ under $H_0$. The LR test is non-robust in the QMLE setting, so reductions are independently confirmed by information criteria: AIC $= \log\hat{\sigma}^2 + 2k/T$ and BIC $= \log\hat{\sigma}^2 + k\log(T)/T$, both minimised; BIC is preferred for its heavier penalty on complexity.
 
 \subsection{Forecasting}
 
@@ -85,7 +102,7 @@ The one-step-ahead forecast from model~(\ref{eq:arma}) is the conditional mean
     + \theta_1 \varepsilon_t + \cdots + \theta_q \varepsilon_{t-q+1}.
 \]
 Parameters are fixed at their training-sample estimates. Residuals $\hat{\varepsilon}_t$ required for the MA terms are updated recursively via $\hat{\varepsilon}_t = y_t - \hat{y}_t$ for $t > T$.
-
+\newline
 Forecast accuracy is assessed against the naive benchmark $\bar{y} = T^{-1}\sum_{t=1}^{T} y_t$ using root mean squared error (RMSE). Statistical significance is evaluated by the Diebold-Mariano (DM) test: define $d_t = e_{\mathrm{model},t}^2 - e_{\mathrm{naive},t}^2$ where $e_{j,t} = y_t - \hat{y}_{j,t}$; then under $H_0\colon E[d_t]=0$,
 \[
   t_{\mathrm{DM}} = \frac{\bar{d}}{\widehat{\mathrm{s.e.}}(\bar{d})} \xrightarrow{d} N(0,1).
@@ -95,15 +112,12 @@ Since $d_t$ is typically autocorrelated, $\widehat{\mathrm{s.e.}}(\bar{d})$ uses
 \subsection{Growth-at-Risk}
 
 The one-period Growth-at-Risk at risk level $\alpha\in(0,1)$, denoted $\mathrm{GaR}^\alpha_t$, is the $\alpha$-quantile of the conditional distribution of $y_t$ given $\mathcal{I}_{t-1}$:
-\[
-  P(y_t \leq \mathrm{GaR}^\alpha_t \mid \mathcal{I}_{t-1}) = \alpha.
-\]
-Under the Gaussian assumption $\varepsilon_t \sim N(0,\sigma^2)$, this simplifies to
 \begin{equation}\label{eq:gar}
-  \mathrm{GaR}^\alpha_t = \hat{y}_t + \sigma\Phi^{-1}(\alpha),
+  P(y_t \leq \mathrm{GaR}^\alpha_t \mid \mathcal{I}_{t-1}) = \alpha,\quad \varepsilon_t \sim N(0,\sigma^2)\Rightarrow \mathrm{GaR}^\alpha_t = \hat{y}_t + \sigma\Phi^{-1}(\alpha).
 \end{equation}
 where $\Phi^{-1}(\alpha)$ is the $\alpha$-quantile of the standard normal.
-
+\newline
+\newline
 Evaluation uses the hit indicator $\mathrm{hit}_t = \mathbf{1}\{y_t < \mathrm{GaR}^\alpha_t\}$ and the violation rate $\hat{p} = T^{-1}\sum_t \mathrm{hit}_t$. Under correct specification $(\mathrm{hit}_t)$ is i.i.d.\ Bernoulli($\alpha$) and we test $H_0\colon E[\mathrm{hit}_t]=\alpha$ using the $t$-statistic $t = (\hat{p}-\alpha)/\sqrt{\alpha(1-\alpha)/T}$, which is asymptotically $N(0,1)$. Additional discriminating power is provided by the tick loss
 \[
   \mathcal{T}_\alpha(y_t, \mathrm{GaR}^\alpha_t) = (\alpha - \mathrm{hit}_t)(y_t - \mathrm{GaR}^\alpha_t).
@@ -117,7 +131,8 @@ Evaluation uses the hit indicator $\mathrm{hit}_t = \mathbf{1}\{y_t < \mathrm{Ga
 \subsection{Model Selection}
 
 Figure~\ref{fig:acf_pacf} motivated a focus on AR models: the PACF is statistically significant at lags 1 and 2 and negligible thereafter. Following the GETS principle, we estimate AR(1)--AR(4) and ARMA(1,1) and compare them in Table~\ref{tab:model_selection}, then apply sequential LR tests starting from AR(4) to justify reducing the model.
-
+\newline
+\newline
 Testing AR(4) vs.\ AR(3) ($H_0\colon \phi_4=0$) gives $\xi_{\mathrm{LR}}=0.08$ ($p=0.78$): fail to reject, reduce. Testing AR(3) vs.\ AR(2) ($H_0\colon \phi_3=0$) gives $\xi_{\mathrm{LR}}=2.29$ ($p=0.13$): again fail to reject, yielding AR(2) as the GETS outcome. Information criteria confirm: AR(2) achieves the best BIC ($-542.33$), while AR(1) is excluded due to significant residual autocorrelation (Ljung-Box lag-8 $p=0.00$). We therefore select \textbf{AR(2)} as the preferred specification.
 
 \begin{figure}[H]
@@ -134,11 +149,12 @@ Testing AR(4) vs.\ AR(3) ($H_0\colon \phi_4=0$) gives $\xi_{\mathrm{LR}}=0.08$ (
 \subsection{Misspecification Testing}
 
 Three misspecification tests are applied to the AR(2) training-sample residuals.
-
+\newline
 The Ljung-Box test (adjusted for $p=2$ AR parameters, $\sim\chi^2(h-p)$) yields $Q(4)=8.67$ ($p=0.013$) and $Q(8)=12.25$ ($p=0.057$). The borderline rejections are attributable to the 2008Q4 GFC outlier inflating nearby autocorrelations, not to a failure of the AR(2) lag structure.
-
+\newline
+\newline
 The Jarque-Bera test yields $\mathrm{JB}=8.63$ ($p=0.013$), rejecting normality at the 5\% level due to excess kurtosis of $1.31$ from GFC residuals in 2008Q4--2009Q1. Adding intervention dummies for these quarters reduces the statistic to $\mathrm{JB}=0.26$ ($p=0.879$), confirming the rejection is outlier-driven. We retain the plain AR(2) for forecasting, but the result means the estimator is formally a quasi-MLE (QMLE): $t$-statistics remain valid (sandwich covariance $\Omega^* = \mathcal{I}^{-1}\mathcal{J}\mathcal{I}^{-1}$), though the Gaussian GaR formula~(\ref{eq:gar}) may mis-calibrate the lower tail.
-
+\newline
 The ARCH-LM test at four lags yields $7.98$ ($p=0.092$), failing to reject conditional homoskedasticity at the 5\% level.
 
 \subsection{Preferred Model: Estimates and Interpretation}
@@ -154,7 +170,7 @@ Figure~\ref{fig:forecasts} and Table~\ref{tab:forecast_eval} present the out-of-
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{figures/fig3_forecasts.pdf}
+    \includegraphics[width=0.8\textwidth]{figures/fig3_forecasts.pdf}
     \caption{Out-of-sample forecasts vs realised GDP growth, 2010Q1--2024Q4.}
     \label{fig:forecasts}
 \end{figure}
@@ -165,12 +181,12 @@ Figure~\ref{fig:forecasts} and Table~\ref{tab:forecast_eval} present the out-of-
 \subsection{Growth-at-Risk Evaluation}
 
 Figure~\ref{fig:gar} and Table~\ref{tab:gar_eval} present the GaR evaluation.
-
+\newline
 The AR(2) GaR has a violation rate of $\hat{p}=0.150$; the coverage $t$-test ($t=1.291$, $p=0.197$) cannot reject correct coverage. The $\mathrm{GaR}^{\mathrm{np}}$ series shows the mirror pattern ($\hat{p}=0.050$, same $|t|$, $p=0.197$), also not rejected. The AR(2) excess violations are largely attributable to the two COVID-19 quarters of 2020. On tick loss, $\mathrm{GaR}^{\mathrm{np}}$ achieves a marginally lower mean loss ($0.0040$ vs.\ $0.0046$). Overall, the AR(2) GaR provides useful time-variation relative to the constant benchmark but does not achieve demonstrably better calibration over this evaluation window.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=\textwidth]{figures/fig4_gar.pdf}
+    \includegraphics[width=0.8\textwidth]{figures/fig4_gar.pdf}
     \caption{Growth-at-Risk estimates (10\% level) vs realised GDP growth, 2010Q1--2024Q4.}
     \label{fig:gar}
 \end{figure}
@@ -183,7 +199,20 @@ The AR(2) GaR has a violation rate of $\hat{p}=0.150$; the coverage $t$-test ($t
 \section{Discussion}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Three limitations deserve mention. First, the GaR formula~(\ref{eq:gar}) is derived under Gaussian errors; the JB rejection implies the lower tail may be mis-calibrated. Second, parameters are fixed at training-sample estimates, so structural changes over the evaluation period are not captured; the model is also purely univariate, whereas macro-financial variables may contain additional predictive content for the conditional tail. Third, the COVID-19 shock dominates both the RMSE gap and GaR violation counts, making a definitive assessment of model performance difficult over this evaluation window.
+Three limitations deserve mention.
+First, the GaR formula~(\ref{eq:gar}) is derived under Gaussian errors, while the JB rejection indicates non-Gaussian residual behavior driven by crisis observations.
+This matters most for tail risk: Gaussian GaR can be too optimistic or too conservative in the lower tail when kurtosis rises.
+Hence, the non-rejection of the 10\% coverage test should be read as weak evidence of calibration, not strong validation of the full conditional distribution.
+\newline
+Second, the empirical design is intentionally parsimonious but restrictive.
+Parameters are estimated once on 1990Q1--2009Q4 and then held fixed, which rules out coefficient drift, level shifts, and changing shock volatility during the evaluation period.
+In addition, the univariate specification ignores macro-financial state variables that may contain incremental information about downside risk, so the model can be well-calibrated on average while still missing variation in the conditional tail over time.
+\newline
+Third, the evaluation window is short and heavily influenced by rare extremes.
+The COVID-19 collapse and rebound account for a disproportionate share of squared forecast errors and GaR exceedances, so headline metrics (RMSE differences, violation rates, and tick loss) are sensitive to a few quarters.
+This concentration makes model ranking less stable and limits external validity: conclusions are most credible as evidence of robustness in an unusually turbulent sample, not as a universal statement about performance across regimes.
+
+
 
 
 % ─────────────────────────────────────────────────────────────────────────────
