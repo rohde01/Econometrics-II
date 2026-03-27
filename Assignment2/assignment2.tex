@@ -25,7 +25,7 @@ Geopolitical Risk and Economic Activity}
 % ─────────────────────────────────────────────────────────────────────────────
 This paper analyzes the dynamic relationship between geopolitical risk, stock returns, and U.S. economic activity using a monthly VAR model. The central question is whether geopolitical risk drives financial and real activity dynamics, whether reverse predictive channels are present, and whether there is evidence of contemporaneous comovement.
 
-The preferred model is a reduced-form VAR selected by information criteria and validated through misspecification diagnostics. In baseline Gaussian Wald tests, stock returns strongly predict industrial production growth, while geopolitical risk does not significantly predict either stock returns or production growth in the three-variable system. Because heteroskedasticity and non-normality are present, I also report HAC-robust tests for key restrictions. Under robust inference, the conclusion that geopolitical risk has weak predictive power is unchanged, while the stock-return predictive channel becomes less statistically sharp.
+The preferred model is a reduced-form VAR selected by information criteria and validated through misspecification diagnostics. Baseline Gaussian Wald tests show no Granger causality from geopolitical risk to either stock returns or production growth, and baseline evidence for $s\rightarrow y$. Because residual diagnostics indicate heteroskedasticity and non-normality, I report HAC-robust Wald tests as the main inferential benchmark. Under robust inference, the conclusion that geopolitical risk has weak predictive power is unchanged, while the $s\rightarrow y$ channel is no longer significant at 5\%.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -40,14 +40,10 @@ s_t &= \log\left(1+\frac{Mkt_t}{100}\right).
 \end{align*}
 Thus, $y_t$ is monthly industrial production growth and $s_t$ is continuously compounded monthly stock return.
 
-Figure~\ref{fig:series} displays the three series with major event windows (9/11, COVID-19, 2022 war shock, and 2023--2024 Middle East escalation). The data show large crisis outliers, especially in $y_t$ during early 2020, and visibly non-Gaussian tail behavior.
+Data sources are the Caldara-Iacoviello geopolitical risk database (GPR), FRED (INDPRO), and the Fama-French data library (Mkt).
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig1_series_panel.pdf}
-    \caption{Monthly series for $g_t$, $s_t$, and $y_t$ with highlighted event windows.}
-    \label{fig:series}
-\end{figure}
+Figure~\ref{fig:series} displays the three series with major event windows (9/11, COVID-19, 2022 war shock, and 2023--2024 Middle East escalation). The data show large crisis outliers, especially in $y_t$ during early 2020, and visibly non-Gaussian tail behavior.
+The full graph is reported in Appendix Figure A1.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -68,9 +64,9 @@ H_0: \text{all } k \text{ coefficients on } g_{t-j} \text{ in the } s_t \text{ e
 \end{equation}
 Under correct specification, Wald statistics are asymptotically $\chi^2$.
 
-Because diagnostics indicate heteroskedasticity and non-normality, robust covariance estimation is relevant for inference. I therefore report HAC-based Wald tests for key restrictions in addition to baseline VAR Wald tests.
+Misspecification matters for inference: with heteroskedastic or serially dependent residuals, conventional Gaussian covariance estimates are not reliable, so baseline Wald p-values can be distorted in finite samples. I therefore report HAC-based Wald tests for key restrictions and use these as the primary inference when baseline and robust conclusions differ.
 
-For dynamic interpretation of shocks, I use orthogonalized impulse responses from a Cholesky factorization with ordering $(g,s,y)$, imposing that geopolitical risk does not respond contemporaneously within month to the other two variables.
+For dynamic interpretation of shocks, I use orthogonalized impulse responses from a Cholesky factorization with ordering $(g,s,y)$, imposing that geopolitical risk does not respond contemporaneously within month to the other two variables. This is a maintained identifying assumption, so IRFs are interpreted conditionally on that ordering.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -79,42 +75,31 @@ For dynamic interpretation of shocks, I use orthogonalized impulse responses fro
 
 \subsection{Modeling Progress and Model Selection}
 
-I estimate VAR($k$) for $k=1,2,3,4$ and compare AIC, BIC, and HQIC. BIC selects VAR(1), while AIC is slightly lower at VAR(3). Following a parsimonious strategy, I choose VAR(1) as preferred and then evaluate misspecification before conducting inferential interpretation.
-
-\input{tables/table1_lag_selection.tex}
+I estimate VAR($k$) for $k=1,2,3,4$ and compare AIC, BIC, and HQIC. BIC selects VAR(1), while AIC is slightly lower at VAR(3). Because each extra lag adds nine slope coefficients in this three-variable system, I follow BIC and retain VAR(1) as preferred, then evaluate misspecification before inference. A short VAR(2) sensitivity check is discussed in the robustness paragraph.
+Lag-selection numbers are summarized in Appendix Table A1.
 
 \subsection{Misspecification and Consequences for Inference}
 
-Table~\ref{tab:diagnostics} reports equation-level diagnostics. Residual autocorrelation is borderline in the $g_t$ equation and stronger in the $y_t$ equation at lag 12. ARCH-LM rejects homoskedasticity for $s_t$ and $y_t$, and Jarque-Bera rejects normality in all equations.
+Equation-level diagnostics indicate residual autocorrelation in parts of the system and strong non-normality. Residual autocorrelation is borderline in the $g_t$ equation and stronger in the $y_t$ equation at lag 12. ARCH-LM rejects homoskedasticity for $s_t$ and $y_t$, and Jarque-Bera rejects normality in all equations.
+Compact p-value diagnostics are shown in Appendix Table A2.
 
-\input{tables/table2_diagnostics.tex}
+These outcomes imply that standard Gaussian Wald significance can be misleading in finite samples. Estimation of dynamic coefficients remains informative, but formal hypothesis testing should rely on robust covariance methods. I therefore treat HAC-based Wald tests as the main inferential results.
 
-These outcomes imply that standard Gaussian Wald significance can be misleading in finite samples. Estimation of dynamic coefficients remains informative, but inference should be interpreted with caution and supplemented by robust covariance methods.
-
-Contemporaneous dependence is assessed by residual correlations. The estimated values are moderate: $\text{corr}(e_g,e_s)\approx -0.106$, $\text{corr}(e_g,e_y)\approx 0.004$, and $\text{corr}(e_s,e_y)\approx -0.058$.
+Contemporaneous dependence is assessed by residual correlations. The estimated values are moderate: $\text{corr}(e_g,e_s)\approx -0.106$, $\text{corr}(e_g,e_y)\approx 0.004$, and $\text{corr}(e_s,e_y)\approx -0.058$. These correlations motivate caution in structural interpretation, since recursive contemporaneous restrictions are not directly testable.
 
 \subsection{Predictive Channels: Baseline and Robust Tests}
 
-Baseline VAR Wald tests show no Granger-causality from $g$ to $s$ or $y$, and strong evidence for $s\rightarrow y$.
+Baseline VAR Wald tests show no Granger-causality from $g$ to $s$ or $y$, and baseline evidence for $s\rightarrow y$.
 
-\input{tables/table3_granger.tex}
-
-Given misspecification evidence, I also test key restrictions using HAC covariance in equation-by-equation regressions (Table~\ref{tab:granger_hac}). The robust tests confirm weak predictive content from $g$ to both $s$ and $y$. The $s\rightarrow y$ channel is no longer significant at 5\% under HAC, which indicates that the baseline significance partly reflects non-constant volatility.
-
-\input{tables/table6_granger_hac.tex}
+Given misspecification evidence, I also test key restrictions using HAC covariance in equation-by-equation regressions. The robust tests confirm weak predictive content from $g$ to both $s$ and $y$. The $s\rightarrow y$ channel is no longer significant at 5\% under HAC, which indicates that the baseline significance partly reflects non-constant volatility.
+Baseline and HAC p-values are summarized in Appendix Table A3.
 
 \subsection{Impulse Responses and Sample Robustness}
 
-Figure~\ref{fig:irf_main} shows orthogonalized IRFs from the preferred VAR(1). A one-standard-deviation GPR shock reduces stock returns on impact (around $-0.0048$ in log-return units), then decays quickly. The response of production growth is small and close to zero.
+Figure~\ref{fig:irf_main} shows orthogonalized IRFs from the preferred VAR(1). Under the maintained Cholesky ordering, a one-standard-deviation GPR shock reduces stock returns on impact (around $-0.0048$ in log-return units), then decays quickly. The response of production growth is small and close to zero.
+The complete IRF panel is reported in Appendix Figure A2.
 
-\begin{figure}[H]
-    \centering
-    \includegraphics[width=0.95\textwidth]{figures/fig3_irf_orth.pdf}
-    \caption{Orthogonalized impulse responses from VAR(1) with Cholesky ordering $(g,s,y)$.}
-    \label{fig:irf_main}
-\end{figure}
-
-I re-estimate the model on two alternative samples: post-9/11 only, and a sample excluding 2020--2024. The qualitative message is unchanged: $g\rightarrow s$ and $g\rightarrow y$ predictive channels remain weak, while financial dynamics continue to be the dominant short-run channel.
+I re-estimate the model on two alternative samples: post-9/11 only, and a sample excluding 2020--2024; I also check VAR(2) briefly as a sensitivity analysis. The qualitative message is unchanged: $g\rightarrow s$ and $g\rightarrow y$ predictive channels remain weak, while financial dynamics continue to be the dominant short-run channel.
 
 
 % ─────────────────────────────────────────────────────────────────────────────
@@ -136,9 +121,75 @@ Third, Cholesky identification is a maintained assumption. Ordering GPR first is
 
 Using monthly data from 1985--2025, I estimate a parsimonious VAR for geopolitical risk, stock returns, and U.S. industrial production growth. The preferred model is VAR(1) by BIC.
 
-The main finding is that lagged geopolitical risk does not robustly predict stock returns or production growth in this setup. Stock returns contain predictive information for production growth in baseline tests, but this channel becomes less statistically precise under HAC-robust inference. Orthogonalized IRFs still indicate an immediate negative stock-market reaction to a GPR shock, with limited persistence and weak direct real-activity response.
+The main finding is that lagged geopolitical risk does not robustly predict stock returns or production growth in this setup. Stock returns contain predictive information for production growth in baseline tests, but this channel is not significant at 5\% under HAC-robust inference. Orthogonalized IRFs, interpreted conditionally on the Cholesky ordering, still indicate an immediate negative stock-market reaction to a GPR shock, with limited persistence and weak direct real-activity response.
 
 Overall, the evidence suggests that in this compact monthly system, financial variables remain the strongest short-run transmission channel, while direct predictive effects of aggregate GPR on activity are modest.
+
+\clearpage
+\section*{Output Appendix (2 pages)}
+
+\textbf{Page 1: Graphical Output}
+
+\begin{center}
+\includegraphics[width=0.95\textwidth,height=0.42\textheight,keepaspectratio]{figures/fig1_series_panel.pdf}
+\captionof{figure}{\textbf{Figure A1.} Monthly series for $g_t$, $s_t$, and $y_t$ with highlighted event windows.}
+\label{fig:series}
+
+\vspace{0.4cm}
+
+\includegraphics[width=0.95\textwidth,height=0.42\textheight,keepaspectratio]{figures/fig3_irf_orth.pdf}
+\captionof{figure}{\textbf{Figure A2.} Orthogonalized impulse responses from VAR(1) with Cholesky ordering $(g,s,y)$.}
+\label{fig:irf_main}
+\end{center}
+
+\clearpage
+\textbf{Page 2: Tabular Output}
+
+\begin{table}[H]
+\centering
+\small
+\caption{\textbf{Table A1.} Lag-order selection criteria.}
+\begin{tabular}{lrrrr}
+\toprule
+Lag & AIC & BIC & HQIC & FPE \\
+\midrule
+1 & -18.5525 & -18.4499 & -18.5122 & 0.0000 \\
+2 & -18.5615 & -18.3818 & -18.4910 & 0.0000 \\
+3 & -18.5772 & -18.3200 & -18.4762 & 0.0000 \\
+4 & -18.5483 & -18.2134 & -18.4167 & 0.0000 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{\textbf{Table A2.} Compact misspecification diagnostics (p-values).}
+\begin{tabular}{lrrrr}
+\toprule
+Equation & LB p & ARCH p & JB p & Any reject (5\%) \\
+\midrule
+$g_t$ & 0.0480 & 0.9636 & 0.0000 & Yes \\
+$s_t$ & 0.5401 & 0.0050 & 0.0000 & Yes \\
+$y_t$ & 0.0013 & 0.0000 & 0.0000 & Yes \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[H]
+\centering
+\small
+\caption{\textbf{Table A3.} Baseline versus HAC p-values for key restrictions.}
+\begin{tabular}{lrrrr}
+\toprule
+Restriction & Baseline p & HAC p & Baseline reject 5\% & HAC reject 5\% \\
+\midrule
+$g \rightarrow s$ & 0.4779 & 0.5601 & No & No \\
+$g \rightarrow y$ & 0.2484 & 0.1716 & No & No \\
+$s \rightarrow y$ & 0.0000 & 0.1613 & Yes & No \\
+\bottomrule
+\end{tabular}
+\end{table}
 
 
 \end{document}
