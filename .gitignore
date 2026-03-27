@@ -35,3 +35,6 @@ build/
 
 # macOS
 .DS_Store
+
+/Mathilde/
+/PeerFeedback/
