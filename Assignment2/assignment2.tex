@@ -24,7 +24,8 @@ Geopolitical Risk and Economic Activity}
 \section{Introduction}
 % ─────────────────────────────────────────────────────────────────────────────
 This paper analyzes the dynamic relationship between geopolitical risk, stock returns, and U.S. economic activity using a monthly VAR model. The central question is whether geopolitical risk drives financial and real activity dynamics, whether reverse predictive channels are present, and whether there is evidence of contemporaneous comovement.
-
+\newline
+\newline
 The preferred model is a reduced-form VAR selected by information criteria and validated through misspecification diagnostics. Baseline Gaussian Wald tests show no Granger causality from geopolitical risk to either stock returns or production growth, and baseline evidence for $s\rightarrow y$. Because residual diagnostics indicate heteroskedasticity and non-normality, we report HAC-robust Wald tests as the main inferential benchmark. Under robust inference, the conclusion that geopolitical risk has weak predictive power is unchanged, while the $s\rightarrow y$ channel is no longer significant at 5\%.
 
 
@@ -39,9 +40,10 @@ y_t &= \log(INDPRO_t)-\log(INDPRO_{t-1}), \\
 s_t &= \log\left(1+\frac{Mkt_t}{100}\right).
 \end{align*}
 Thus, $y_t$ is monthly industrial production growth and $s_t$ is continuously compounded monthly stock return.
-
+\newline
 Data sources are the Caldara-Iacoviello geopolitical risk database (GPR), FRED (INDPRO), and the Fama-French data library (Mkt).
-
+\newline
+\newline
 Figure~\ref{fig:series} displays the three series with major event windows (9/11, COVID-19, 2022 war shock, and 2023--2024 Middle East escalation). The data show large crisis outliers, especially in $y_t$ during early 2020, and visibly non-Gaussian tail behavior.
 
 \begin{figure}[H]
@@ -56,26 +58,47 @@ Figure~\ref{fig:series} displays the three series with major event windows (9/11
 \section{Econometric Theory}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Define $Z_t=(g_t,s_t,y_t)'$. The reduced-form VAR($k$) is
+The assignment studies whether geopolitical risk helps predict stock returns and real activity, and whether the relationship is mainly lagged (predictive) or contemporaneous. To analyze this, we model the three monthly variables jointly as
+\[
+Z_t=(g_t,s_t,y_t)' ,
+\]
+where \(g_t\) is log geopolitical risk, \(s_t\) is log stock return, and \(y_t\) is industrial production growth.
+\newline
+\newline
+The baseline model is a reduced-form VAR(\(k\)):
 \begin{equation}
-Z_t = \mu + \Pi_1 Z_{t-1} + \cdots + \Pi_k Z_{t-k} + e_t,
+Z_t = \mu + \Pi_1 Z_{t-1} + \cdots + \Pi_k Z_{t-k} + e_t ,
 \end{equation}
-with $E[e_t\mid\mathcal{I}_{t-1}] = 0$ and $E[e_t e_t'] = \Omega$.
-
-Under stationarity and standard regularity conditions, equation-by-equation OLS coincides with Gaussian MLE in the VAR. Asymptotically, coefficient estimators are normal, so Wald/LR tests are valid for linear restrictions. Stability requires roots of the companion representation outside the unit circle.
-
-To test predictive causality, we test block exclusion restrictions in each equation. For example, no Granger causality from $g$ to $s$ in VAR($k$) is
+with innovations satisfying
+\[
+E(e_t \mid \mathcal I_{t-1})=0,\qquad
+E(e_t e_t')=\Omega,\qquad
+E(e_t e_{t-j}')=0\ \text{for } j\ge 1,
+\]
+and \(\Omega\) symmetric positive definite. Thus, each variable is explained by its own lags and lags of the other variables, while contemporaneous comovement is summarized by \(\Omega\).
+\newline
+\newline
+A key requirement for standard VAR inference is stability (covariance stationarity). For a VAR(\(k\)), this is checked in companion form: all eigenvalues must lie strictly inside the unit circle (equivalently, all roots of the characteristic polynomial lie outside the unit circle). Under stability and standard regularity conditions, equation-by-equation OLS is numerically identical to Gaussian MLE in the VAR, and
+\[
+\sqrt{T}\,\mathrm{vec}\!\left(\hat\Phi-\Phi\right)\xrightarrow{d}N(0,V),
+\]
+so Wald and LR tests are asymptotically valid for linear restrictions.
+\newline
+\newline
+To test predictive (Granger) causality, we use block exclusion restrictions. For example, ``\(g\) does not Granger-cause \(s\)'' in VAR(\(k\)) is
 \begin{equation}
-H_0: \text{all } k \text{ coefficients on } g_{t-j} \text{ in the } s_t \text{ equation are zero.}
+H_0:\ \Pi_{s,g,1}=\Pi_{s,g,2}=\cdots=\Pi_{s,g,k}=0,
 \end{equation}
-Under correct specification, Wald statistics are asymptotically $\chi^2$.
+i.e., all coefficients on \(g_{t-j}\) in the \(s_t\)-equation are jointly zero. Under correct specification, the Wald statistic is asymptotically \(\chi^2(m)\), where \(m\) is the number of restrictions (here \(m=k\)). Granger causality is about incremental forecasting power and does \emph{not} identify contemporaneous causality.
+\newline
+\newline
+Misspecification affects inference: if residuals are heteroskedastic or non-Gaussian, conventional (model-based) covariance estimates can understate uncertainty. Following the course-note guidance, we therefore complement baseline Gaussian Wald tests with HAC-robust Wald tests for key restrictions and treat robust inference as primary whenever conclusions differ.
+\newline
+\newline
+For dynamic interpretation of shocks, we report impulse-response functions (IRFs). Reduced-form shocks are generally correlated, so economically interpretable IRFs require orthogonalization. We use a recursive (Cholesky) identification with ordering \((g,s,y)\), which imposes that geopolitical risk is predetermined within the month relative to stock returns and production growth. Hence, IRFs are interpreted conditionally on this maintained ordering assumption; in particular, contemporaneous feedback to \(g_t\) within the month is ruled out by construction.
 
-Misspecification matters for inference: with heteroskedastic or serially dependent residuals, conventional Gaussian covariance estimates are not reliable, so baseline Wald p-values can be distorted in finite samples. We therefore report HAC-based Wald tests for key restrictions and use these as the primary inference when baseline and robust conclusions differ.
-
-For dynamic interpretation of shocks, we use orthogonalized impulse responses from a Cholesky factorization with ordering $(g,s,y)$, imposing that geopolitical risk does not respond contemporaneously within month to the other two variables. This is a maintained identifying assumption, so IRFs are interpreted conditionally on that ordering.
 
 
-% ─────────────────────────────────────────────────────────────────────────────
 \section{Empirical Analysis}
 % ─────────────────────────────────────────────────────────────────────────────
 
@@ -93,14 +116,16 @@ Compact p-value diagnostics are shown in Table~\ref{tab:diag_compact}.
 
 \input{tables/table7_diag_compact.tex}
 
-These outcomes imply that standard Gaussian Wald significance can be misleading in finite samples. Estimation of dynamic coefficients remains informative, but formal hypothesis testing should rely on robust covariance methods. We therefore treat HAC-based Wald tests as the main inferential results.
 
+These outcomes imply that standard Gaussian Wald significance can be misleading in finite samples. Estimation of dynamic coefficients remains informative, but formal hypothesis testing should rely on robust covariance methods. We therefore treat HAC-based Wald tests as the main inferential results.
+\newline
+\newline
 Contemporaneous dependence is assessed by residual correlations. The estimated values are moderate: $\text{corr}(e_g,e_s)\approx -0.106$, $\text{corr}(e_g,e_y)\approx 0.004$, and $\text{corr}(e_s,e_y)\approx -0.058$. These correlations motivate caution in structural interpretation, since recursive contemporaneous restrictions are not directly testable.
 
 \subsection{Predictive Channels: Baseline and Robust Tests}
 
 Baseline VAR Wald tests show no Granger-causality from $g$ to $s$ or $y$, and baseline evidence for $s\rightarrow y$.
-
+\newline
 Given misspecification evidence, we also test key restrictions using HAC covariance in equation-by-equation regressions. The robust tests confirm weak predictive content from $g$ to both $s$ and $y$. The $s\rightarrow y$ channel is no longer significant at 5\% under HAC, which indicates that the baseline significance partly reflects non-constant volatility.
 Baseline and HAC p-values are summarized in Table~\ref{tab:caus_compact}.
 
@@ -110,37 +135,49 @@ Baseline and HAC p-values are summarized in Table~\ref{tab:caus_compact}.
 
 Figure~\ref{fig:irf_main} shows orthogonalized IRFs from the preferred VAR(1). Under the maintained Cholesky ordering, a one-standard-deviation GPR shock reduces stock returns on impact (around $-0.0048$ in log-return units), then decays quickly. The response of production growth is small and close to zero.
 
+
 \begin{figure}[H]
-	\centering
-	\includegraphics[width=0.95\textwidth]{figures/fig3_irf_orth.pdf}
-	\caption{Orthogonalized impulse responses to a GPR shock from VAR(1) with Cholesky ordering $(g,s,y)$.}
-	\label{fig:irf_main}
+    \centering
+    \includegraphics[width=0.95\textwidth]{figures/fig3_irf_orth.pdf}
+    \caption{Orthogonalized impulse responses to a GPR shock from VAR(1) with Cholesky ordering $(g,s,y)$.}
+    \label{fig:irf_main}
 \end{figure}
+
+
 
 We re-estimate the model on two alternative samples: post-9/11 only, and a sample excluding 2020--2024; we also check VAR(2) briefly as a sensitivity analysis. The qualitative message is unchanged: $g\rightarrow s$ and $g\rightarrow y$ predictive channels remain weak (with only borderline evidence in one restricted sample), while financial dynamics continue to be the dominant short-run channel.
 
-
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Discussion}
-% ─────────────────────────────────────────────────────────────────────────────
 
-The approach is transparent and reproducible, and it is designed to identify predictive and dynamic links between geopolitical risk, stock returns, and industrial production growth. At the same time, three limitations are important.
-
-First, the three-variable VAR is intentionally parsimonious and cannot represent the broader macro-financial transmission channels emphasized in larger GPR systems. Omitted variables may attenuate direct GPR effects.
-
-Second, misspecification tests indicate heteroskedastic and heavy-tailed residuals, especially around crisis episodes. This weakens reliance on Gaussian finite-sample p-values and motivates robust inference.
-
-Third, Cholesky identification is a maintained assumption. Ordering GPR first is economically plausible and consistent with the course framing, but contemporaneous restrictions are not directly testable.
-
+The empirical strategy is transparent and closely aligned with the assignment objective of separating predictive dynamics from contemporaneous comovement in a multivariate setting. The preferred VAR(1) provides a clear and interpretable benchmark.
+\newline
+A key strength is consistency across methods: model selection, diagnostics, Granger-causality tests, and IRFs all point to the same qualitative conclusion. Lagged geopolitical risk has limited predictive power for stock returns and industrial production growth in this specification.
+\newline
+\newline
+At the same time, three limitations are important. First, the three-variable VAR is intentionally parsimonious and cannot capture all macro-financial transmission channels emphasized in larger GPR systems; omitted variables may attenuate direct GPR effects.
+\newline
+Second, misspecification tests indicate heteroskedasticity and non-normal residuals, especially during crisis periods. This weakens reliance on conventional Gaussian finite-sample p-values and motivates robust inference as the primary benchmark.
+\newline
+Third, orthogonalized IRFs rely on the maintained Cholesky ordering $(g,s,y)$. Ordering GPR first is economically plausible at monthly frequency, but contemporaneous restrictions are not directly testable, so structural interpretation should remain cautious.
+\newline
+\newline
+Overall, the evidence suggests that in this compact monthly system, financial variables are the main short-run transmission channel, while direct predictive effects of aggregate geopolitical risk on real activity are modest.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Conclusion}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Using monthly data from 1985--2025, we estimate a parsimonious VAR for geopolitical risk, stock returns, and U.S. industrial production growth. The preferred model is VAR(1) by BIC.
-
-The main finding is that lagged geopolitical risk does not robustly predict stock returns or production growth in this setup. Stock returns contain predictive information for production growth in baseline tests, but this channel is not significant at 5\% under HAC-robust inference. Orthogonalized IRFs, interpreted conditionally on the Cholesky ordering, still indicate an immediate negative stock-market reaction to a GPR shock, with limited persistence and weak direct real-activity response.
-
-Overall, the evidence suggests that in this compact monthly system, financial variables remain the strongest short-run transmission channel, while direct predictive effects of aggregate GPR on activity are modest.
+Using monthly U.S. data from 1985--2025, we estimate a parsimonious VAR for geopolitical risk, stock returns, and industrial production growth. Lag-order criteria point to a short dynamic structure, and we therefore use VAR(1) as the preferred specification.
+\newline
+Our main finding is that lagged geopolitical risk does not provide robust predictive content for either stock returns or production growth in this setup. This conclusion is stable across baseline Granger-type tests and HAC-robust inference, despite evidence of heteroskedasticity and non-normal residuals.
+\newline
+Baseline results indicate a predictive channel from stock returns to production growth, but this channel is not significant at the 5\% level once robust covariance estimation is applied. This difference between baseline and robust inference suggests that finite-sample significance can be sensitive to residual volatility patterns.
+\newline
+Orthogonalized impulse responses, interpreted conditional on the Cholesky ordering $(g,s,y)$, show an immediate negative response of stock returns to a GPR shock that decays relatively quickly. The direct response of production growth is small and close to zero over the horizon considered, consistent with limited short-run real-activity transmission in this compact system.
+\newline
+Robustness checks based on alternative samples (post-9/11 and exclusion of 2020--2024) do not alter the qualitative conclusions. The overall picture is therefore that financial variables remain the dominant short-run adjustment margin, while direct predictive effects of aggregate geopolitical risk on real activity are modest.
+\newline
+Taken together, the evidence supports a cautious interpretation: geopolitical risk is economically relevant for short-run financial conditions, but its direct predictive role for monthly real activity is weak in this three-variable VAR framework.
 
 \end{document}
