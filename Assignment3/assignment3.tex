@@ -24,22 +24,91 @@ A Dynamic Model for U.S. House Prices}
 \section{Introduction}
 % ─────────────────────────────────────────────────────────────────────────────
 
+This assignment studies whether U.S. house prices are linked to fundamentals through the long-run relation
+\begin{equation}
+h_t = \alpha + \beta_1 r_t + \beta_2 m_t,
+\end{equation}
+where $h_t$ is log house prices, $r_t$ is log rents, and $m_t$ is the mortgage rate. The empirical sample is monthly data from 2012M1 to 2023M12. The main question is whether a co-integrating relationship exists and, conditional on co-integration, how equilibrium is sustained through error-correction.
+
+The analysis follows the Econometrics II toolbox for non-stationary variables: unit-root testing, lag selection in a VAR, Johansen rank testing, and estimation of a CVAR model. Misspecification tests are reported before drawing final inferential conclusions.
+
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Description of the Data}
 % ─────────────────────────────────────────────────────────────────────────────
+
+The data are from the assignment file \texttt{Assignment\_3.xlsx}, based on FRED series for the S\&P/Case-Shiller U.S. National Home Price Index, CPI rent of primary residence, and the 30-year fixed mortgage rate. The transformed variables are $h_t = \log(\text{HousePrice})$, $r_t = \log(\text{Rent})$, and $m_t = \text{MortgageRate}$.
+
+Figure \ref{fig:series_panel} shows persistent trends in $h_t$ and $r_t$, while $m_t$ is more cyclical with a sharp increase in 2022--2023. This visual evidence motivates an explicit co-integration analysis instead of a purely stationary VAR in levels.
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{figures/fig1_series_panel.pdf}
+	\caption{Monthly series for $h_t$, $r_t$, and $m_t$, 2012M1--2023M12.}
+	\label{fig:series_panel}
+\end{figure}
+
+\input{tables/table1_summary_stats.tex}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Econometric Theory}
 % ─────────────────────────────────────────────────────────────────────────────
 
+Let $X_t = (h_t, r_t, m_t)'$. The CVAR representation with one lag of differences is
+\begin{equation}
+\Delta X_t = \alpha \beta' X_{t-1} + \Gamma_1 \Delta X_{t-1} + \cdots + \Gamma_{k-1} \Delta X_{t-k+1} + \mu + e_t,
+\end{equation}
+with $e_t \sim (0,\Omega)$ and reduced-rank matrix $\Pi = \alpha\beta'$.
+
+If $\text{rank}(\Pi)=r$, then $\beta'X_t$ is stationary and defines $r$ long-run equilibria, while $\alpha$ contains speeds of adjustment. Co-integration rank is determined by the trace sequence of likelihood-ratio tests. For rank restrictions and parameter restrictions in the CVAR, standard $\chi^2$ inference is used as in the course notes.
+
+To motivate the CVAR approach, each variable is first tested for a unit root using ADF tests in levels and first differences.
+
+\input{tables/table2_unit_root_tests.tex}
+
 \section{Empirical Analysis}
 % ─────────────────────────────────────────────────────────────────────────────
+
+Lag-order selection is first conducted in a VAR for $X_t$ in levels. The preferred lag length by AIC implies a CVAR with $k_{\Delta}=k-1$ lagged differences.
+
+\input{tables/table3_lag_selection.tex}
+
+The Johansen trace tests indicate rank $r=1$, so the preferred model has one co-integrating relation.
+
+\input{tables/table4_johansen_trace.tex}
+
+Given $r=1$, the normalized long-run relation is interpreted as
+\begin{equation}
+h_t = \hat\beta_r r_t + \hat\beta_m m_t + \text{(constant component)}.
+\end{equation}
+The estimated long-run fit and residual diagnostics are shown in Figures \ref{fig:coint_fit} and \ref{fig:residual_acf}.
+
+\input{tables/table5_cvar_estimates.tex}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.9\textwidth]{figures/fig2_cointegration_fit.pdf}
+	\caption{Actual $h_t$ and fitted long-run component from the preferred CVAR.}
+	\label{fig:coint_fit}
+\end{figure}
+
+\input{tables/table6_diagnostics.tex}
+
+\begin{figure}[H]
+	\centering
+	\includegraphics[width=0.95\textwidth]{figures/fig3_residuals_acf.pdf}
+	\caption{Residual autocorrelation diagnostics for the preferred CVAR.}
+	\label{fig:residual_acf}
+\end{figure}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Discussion}
 
+The first implementation indicates one long-run relationship in the restricted sample, but the economic interpretation is sensitive to two features that require explicit discussion in the final version: (i) the mortgage-rate path in 2022--2023 is extreme relative to the rest of the sample, and (ii) some distributional diagnostics reject normality, which may affect small-sample inference. A compact robustness extension with the pre-2012 period will be used to assess whether these findings are sample-specific.
+
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Conclusion}
 % ─────────────────────────────────────────────────────────────────────────────
+
+This draft implements the complete course-aligned empirical pipeline: data description, unit-root testing, lag selection, rank testing, CVAR estimation, and misspecification diagnostics. The next step is to finalize the inferential interpretation, add the explicit restriction test for the strict user-cost condition $\beta_1=1$, and compress the prose to satisfy the final character constraint.
 
 \end{document}
