@@ -11,6 +11,11 @@
 \usepackage{float}
 \usepackage{hyperref}
 
+\newcommand{\E}{\mathbb{E}}
+\newcommand{\Var}{\mathrm{Var}}
+\newcommand{\Cov}{\mathrm{Cov}}
+\newcommand{\Info}{\mathcal{I}}
+
 \title{Econometrics II -- Exam}
 \date{Spring 2026}
 
@@ -20,5 +25,249 @@
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Part 3 - The Additional Assignment}
 % ─────────────────────────────────────────────────────────────────────────────
+
+Throughout, we work with the VAR(1) model (5.1)--(5.3) and, for Questions~(3)--(7), the modified specification (5.5)--(5.7). The stationarity assumptions $|\phi_1|<1$ and $|\phi_3|<1$ are maintained.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (1) -- Reduced-form impulse responses}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{(a) Closed form for $\phi_1\neq\phi_3$.} We show by induction on $k\geq 1$ that
+\begin{equation}
+\Phi^{k}=\begin{pmatrix} \phi_1^{k} & \phi_2\,\dfrac{\phi_1^{k}-\phi_3^{k}}{\phi_1-\phi_3} \\[4pt] 0 & \phi_3^{k}\end{pmatrix}. \label{eq:Phik}
+\end{equation}
+
+\textit{Base case $k=1$.} Directly, $\Phi^{(1)}_{12}=\phi_2=\phi_2(\phi_1-\phi_3)/(\phi_1-\phi_3)$, and the diagonal entries are $\phi_1,\phi_3$, as required.
+
+\textit{Inductive step.} Assume \eqref{eq:Phik} holds for some $k\geq 1$. Because $\Phi$ is upper-triangular the product $\Phi^{k+1}=\Phi\,\Phi^{k}$ remains upper-triangular with diagonal $(\phi_1^{k+1},\phi_3^{k+1})$, and the $(1,2)$-element is
+\begin{align*}
+\Phi^{(k+1)}_{12} &= \phi_1\cdot\Phi^{(k)}_{12} + \phi_2\cdot\Phi^{(k)}_{22}
+= \phi_1\,\phi_2\,\frac{\phi_1^{k}-\phi_3^{k}}{\phi_1-\phi_3} + \phi_2\,\phi_3^{k}\\
+&= \frac{\phi_2}{\phi_1-\phi_3}\Big(\phi_1^{k+1}-\phi_1\phi_3^{k}+(\phi_1-\phi_3)\phi_3^{k}\Big)
+= \phi_2\,\frac{\phi_1^{k+1}-\phi_3^{k+1}}{\phi_1-\phi_3}.
+\end{align*}
+This completes the induction and establishes (5.4).
+
+\paragraph{(b) Special case $\phi_1=\phi_3$.} When the two diagonal entries coincide the geometric-difference quotient in \eqref{eq:Phik} is of indeterminate form $0/0$. Treating $\phi_3$ as the variable and applying L'H\^{o}pital's rule,
+\begin{equation*}
+\lim_{\phi_3\to\phi_1}\,\frac{\phi_1^{k}-\phi_3^{k}}{\phi_1-\phi_3}
+= \lim_{\phi_3\to\phi_1}\frac{-k\phi_3^{k-1}}{-1}
+= k\,\phi_1^{k-1},
+\end{equation*}
+so that
+\begin{equation}
+\Phi^{(k)}_{12}\bigg|_{\phi_1=\phi_3} = \phi_2\,k\,\phi_1^{k-1},\qquad k\geq 1.\label{eq:Phik-equal}
+\end{equation}
+The same expression is obtained directly by induction: $\Phi^{(k+1)}_{12}=\phi_1\,\phi_2 k\phi_1^{k-1}+\phi_2\phi_1^{k}=\phi_2(k+1)\phi_1^{k}$.
+
+\paragraph{(c) Cumulated impulse response, $\phi_1\neq\phi_3$.} Note $\Phi^{0}=I$, so $\Phi^{(0)}_{12}=0$. For $|\phi_1|<1$ and $|\phi_3|<1$ the two geometric series below converge, and
+\begin{align*}
+\sum_{k=0}^{\infty}\Phi^{(k)}_{12}
+&= \sum_{k=1}^{\infty}\phi_2\,\frac{\phi_1^{k}-\phi_3^{k}}{\phi_1-\phi_3}
+= \frac{\phi_2}{\phi_1-\phi_3}\Bigg(\sum_{k=1}^{\infty}\phi_1^{k}-\sum_{k=1}^{\infty}\phi_3^{k}\Bigg)\\
+&= \frac{\phi_2}{\phi_1-\phi_3}\!\left(\frac{\phi_1}{1-\phi_1}-\frac{\phi_3}{1-\phi_3}\right)
+= \frac{\phi_2}{\phi_1-\phi_3}\cdot\frac{\phi_1-\phi_3}{(1-\phi_1)(1-\phi_3)}.
+\end{align*}
+Hence
+\begin{equation}
+\sum_{k=0}^{\infty}\Phi^{(k)}_{12} = \frac{\phi_2}{(1-\phi_1)(1-\phi_3)}.\label{eq:cumIRF}
+\end{equation}
+\textit{Interpretation.} This is the $(1,2)$-element of $(I-\Phi)^{-1}=\sum_{k=0}^{\infty}\Phi^{k}$ (which converges since both eigenvalues of $\Phi$ lie strictly inside the unit circle), and it measures the long-run effect on $y$ of a unit innovation in $\varepsilon_{2,t}$.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (2) -- OLS consistency under conditional heteroskedasticity}
+% ─────────────────────────────────────────────────────────────────────────────
+
+We now suppose $\varepsilon_t=H_t^{1/2}u_t$ with $u_t$ i.i.d., $\E[u_t]=0$, $\Var(u_t)=I_2$, and $H_t$ a positive-definite, $\Info_{t-1}$-measurable conditional covariance matrix. The process $\{\varepsilon_t\}$ is assumed stationary.
+
+\paragraph{Claim.} The equation-by-equation OLS estimator of $\Phi$ is \emph{consistent}.
+
+\paragraph{Argument.} Writing the VAR(1) compactly as $Z_t = \Phi Z_{t-1}+\varepsilon_t$, the OLS estimator (on the system, equivalent equation-by-equation since the regressors are identical across equations) satisfies
+\begin{equation*}
+\widehat{\Phi}_{\text{OLS}} - \Phi
+= \Bigg(\frac{1}{T}\sum_{t=1}^{T} \varepsilon_t Z_{t-1}'\Bigg)\Bigg(\frac{1}{T}\sum_{t=1}^{T} Z_{t-1}Z_{t-1}'\Bigg)^{-1}.
+\end{equation*}
+Two conditions secure consistency:
+
+\medskip
+\textit{(i) Orthogonality.} Because $H_t^{1/2}\in\Info_{t-1}$ and $u_t$ is i.i.d.\ and independent of $\Info_{t-1}$,
+\begin{equation*}
+\E[\varepsilon_t\mid\Info_{t-1}] = H_t^{1/2}\,\E[u_t]=0,
+\end{equation*}
+so by the law of iterated expectations $\E[\varepsilon_t Z_{t-1}']=\E\!\big[Z_{t-1}'\E[\varepsilon_t\mid\Info_{t-1}]\big]=0$. The unconditional moment condition that drives OLS is therefore preserved.
+
+\medskip
+\textit{(ii) LLN/ergodic theorem.} Stationarity of $\{(Z_t,\varepsilon_t)\}$ together with weak dependence (inherited from $|\phi_1|<1$, $|\phi_3|<1$ and the i.i.d.\ structure of $u_t$) ensures
+\begin{equation*}
+\frac{1}{T}\sum_{t=1}^{T}Z_{t-1}Z_{t-1}'\xrightarrow{p}\E[Z_{t-1}Z_{t-1}'],\qquad
+\frac{1}{T}\sum_{t=1}^{T}\varepsilon_t Z_{t-1}'\xrightarrow{p}0,
+\end{equation*}
+the first limit being positive definite (otherwise some linear combination of $Z_{t-1}$ would be degenerate, contradicting stationarity with non-zero innovation variance). The continuous mapping theorem then yields $\widehat{\Phi}_{\text{OLS}}\xrightarrow{p}\Phi$.
+
+\paragraph{Caveats.} Although consistent, OLS is no longer efficient: the Gauss--Markov / MLE-equals-OLS argument relied on $\E[\varepsilon_t\varepsilon_t'\mid\Info_{t-1}]=\Sigma$ being constant, which now fails. Two practical implications: (1) standard errors must be made heteroskedasticity-consistent (sandwich/HCSE form), and (2) an estimator that models $H_t$ explicitly (e.g.\ multivariate GARCH-based quasi-MLE) is asymptotically more efficient.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (3) -- Unconditional variance in the ARCH-X model}
+% ─────────────────────────────────────────────────────────────────────────────
+
+We work with the modified model (5.5)--(5.7). Assuming a stationary solution exists, $\E[\varepsilon_t^2]$ is constant in $t$. By the law of iterated expectations,
+\begin{equation*}
+\E[\varepsilon_t^2]
+= \E\!\big[\E[\varepsilon_t^2\mid\Info_{t-1}]\big]
+= \E[\sigma_t^2]
+= \omega + \alpha\,\E[\varepsilon_{t-1}^2] + \gamma\,\E[x_{t-1}^2].
+\end{equation*}
+The process $\{x_t\}$ is a stationary Gaussian AR(1) with $|\phi_3|<1$, $\E[x_t]=0$, and
+\begin{equation}
+\E[x_t^2] = \frac{\sigma_\eta^2}{1-\phi_3^2}.\label{eq:Vx}
+\end{equation}
+Imposing stationarity $\E[\varepsilon_t^2]=\E[\varepsilon_{t-1}^2]$ and solving,
+\begin{equation}
+\E[\varepsilon_t^2] = \frac{\omega+\gamma\,\sigma_\eta^2/(1-\phi_3^2)}{1-\alpha},\label{eq:Veps}
+\end{equation}
+which is (5.8).
+
+\paragraph{Conditions for \eqref{eq:Veps} to be well-defined and strictly positive.}
+\begin{equation*}
+\omega>0,\quad \alpha\geq 0,\quad \gamma\geq 0,\quad \sigma_\eta^2>0,\quad |\phi_3|<1,\quad \alpha<1.
+\end{equation*}
+Under these, the numerator of \eqref{eq:Veps} is the sum of two non-negative terms with $\omega>0$, hence strictly positive, and the denominator $1-\alpha$ is strictly positive. (The strict inequality $\alpha<1$ is what is actually needed; positivity of $\omega$ and of $\sigma_\eta^2$ ensures the variance is strictly positive even at the boundary $\gamma=0$.)
+
+\paragraph{Comparison with standard ARCH(1).} Setting $\gamma=0$ reduces \eqref{eq:Veps} to the familiar ARCH(1) unconditional variance $\omega/(1-\alpha)$ (cf.\ \S2 of the ARCH lecture notes). The additional term $\gamma\sigma_\eta^2/[(1-\alpha)(1-\phi_3^2)]$ captures the contribution of the persistent exogenous regressor $x_{t-1}^2$ to the unconditional variance of $\varepsilon_t$: a more persistent $x_t$ (larger $\phi_3^2$) or a more variable $\eta_t$ (larger $\sigma_\eta^2$) inflates $\E[\varepsilon_t^2]$, and the effect is amplified by the ARCH feedback through the factor $1/(1-\alpha)$.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (4) -- Conditional joint density and log-likelihood}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{Factorization.} Conditional on $\Info_{t-1}$, the quantities $\sigma_t^2=\omega+\alpha\varepsilon_{t-1}^2+\gamma x_{t-1}^2$ and $\phi_3 x_{t-1}$ are constants (deterministic functions of the conditioning information and $\psi$). Since $z_t$ and $\eta_t$ are mutually independent and independent of $\Info_{t-1}$, the pair $(y_t,x_t)=(\phi_1 y_{t-1}+\phi_2 x_{t-1}+\sigma_t z_t,\,\phi_3 x_{t-1}+\eta_t)$ is, given $\Info_{t-1}$, a function of two independent random variables. Hence
+\begin{equation}
+f(y_t,x_t\mid\Info_{t-1};\psi) = f(y_t\mid\Info_{t-1};\psi)\,f(x_t\mid\Info_{t-1};\psi).\label{eq:factor}
+\end{equation}
+With $z_t\sim N(0,1)$ and $\eta_t\sim N(0,\sigma_\eta^2)$,
+\begin{align}
+f(y_t\mid\Info_{t-1};\psi)
+&= \frac{1}{\sqrt{2\pi\,\sigma_t^2}}\exp\!\left(-\frac{(y_t-\phi_1 y_{t-1}-\phi_2 x_{t-1})^2}{2\sigma_t^2}\right),\label{eq:fy}\\
+f(x_t\mid\Info_{t-1};\psi)
+&= \frac{1}{\sqrt{2\pi\,\sigma_\eta^2}}\exp\!\left(-\frac{(x_t-\phi_3 x_{t-1})^2}{2\sigma_\eta^2}\right).\label{eq:fx}
+\end{align}
+
+\paragraph{Log-likelihood.} Treating $(y_0,x_0,\varepsilon_0)$ as given initial conditions, the conditional log-likelihood for the sample $\{(y_t,x_t)\}_{t=1}^{T}$ is, by \eqref{eq:factor},
+\begin{align}
+\ell_T(\psi)
+&= \sum_{t=1}^{T}\log f(y_t\mid\Info_{t-1};\psi) + \sum_{t=1}^{T}\log f(x_t\mid\Info_{t-1};\psi)\nonumber\\
+&\equiv \ell_T^{y}(\theta_y) + \ell_T^{x}(\theta_x),\label{eq:ll-split}
+\end{align}
+where $\theta_y=(\phi_1,\phi_2,\omega,\alpha,\gamma)'$ and $\theta_x=(\phi_3,\sigma_\eta^2)'$, with
+\begin{align}
+\ell_T^{y}(\theta_y) &= -\frac{T}{2}\log(2\pi) - \frac{1}{2}\sum_{t=1}^{T}\log\sigma_t^2 - \frac{1}{2}\sum_{t=1}^{T}\frac{(y_t-\phi_1 y_{t-1}-\phi_2 x_{t-1})^2}{\sigma_t^2},\label{eq:lly}\\
+\ell_T^{x}(\theta_x) &= -\frac{T}{2}\log(2\pi) - \frac{T}{2}\log\sigma_\eta^2 - \frac{1}{2\sigma_\eta^2}\sum_{t=1}^{T}(x_t-\phi_3 x_{t-1})^2.\label{eq:llx}
+\end{align}
+
+\paragraph{Can the $y$- and $x$-equation parameters be estimated separately?} Yes. The decomposition \eqref{eq:ll-split} shows that $\ell_T^{y}$ depends only on $\theta_y$ and $\ell_T^{x}$ only on $\theta_x$, while the parameter spaces of $\theta_y$ and $\theta_x$ are variation-free (no cross-restrictions). Hence the joint maximum-likelihood estimator factorises:
+\begin{equation*}
+\widehat{\psi} = \big(\widehat{\theta}_y,\widehat{\theta}_x\big),\quad
+\widehat{\theta}_y=\arg\max_{\theta_y}\ell_T^{y}(\theta_y),\quad
+\widehat{\theta}_x=\arg\max_{\theta_x}\ell_T^{x}(\theta_x).
+\end{equation*}
+This is the standard cut argument of the lecture notes on conditional models: under independence of the components and variation-free parameter spaces, the marginal model carries no information about $\theta_y$ and the conditional model carries no information about $\theta_x$, so equation-by-equation estimation is fully efficient (in particular, $\widehat{\theta}_x$ is just the OLS estimator of the AR(1) for $x_t$, and $\widehat{\theta}_y$ is the (Q)MLE of the conditionally-Gaussian ARCH-X model for $y_t$).
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (5) -- Multi-step conditional variance forecasts}
+% ─────────────────────────────────────────────────────────────────────────────
+
+\paragraph{(a) One- and two-step forecasts.} Since $\sigma_{T+1}^2=\omega+\alpha\varepsilon_T^2+\gamma x_T^2$ is $\Info_T$-measurable,
+\begin{equation}
+\sigma_{T+1\mid T}^2 = \omega+\alpha\,\varepsilon_T^2+\gamma\,x_T^2.\label{eq:f1}
+\end{equation}
+For the two-step forecast, take conditional expectations of $\sigma_{T+2}^2=\omega+\alpha\varepsilon_{T+1}^2+\gamma x_{T+1}^2$ given $\Info_T$. Using $\varepsilon_{T+1}=\sigma_{T+1}z_{T+1}$ with $z_{T+1}$ independent of $\Info_T$ and $\E[z_{T+1}^2]=1$,
+\begin{equation*}
+\E[\varepsilon_{T+1}^2\mid\Info_T]
+= \E[\sigma_{T+1}^2\mid\Info_T]\cdot\E[z_{T+1}^2]
+= \sigma_{T+1\mid T}^2.
+\end{equation*}
+For the $x$-term, $x_{T+1}=\phi_3 x_T+\eta_{T+1}$ with $\eta_{T+1}$ independent of $\Info_T$, so
+\begin{equation*}
+\E[x_{T+1}^2\mid\Info_T] = (\phi_3 x_T)^2 + \Var(\eta_{T+1}) = \phi_3^2 x_T^2 + \sigma_\eta^2.
+\end{equation*}
+Combining,
+\begin{equation}
+\sigma_{T+2\mid T}^2
+= \omega + \alpha\,\sigma_{T+1\mid T}^2 + \gamma\big(\phi_3^2 x_T^2 + \sigma_\eta^2\big).\label{eq:f2}
+\end{equation}
+
+\paragraph{(b) Convergence as $h\to\infty$.} For $h\geq 2$ the same argument yields the recursion
+\begin{equation}
+\sigma_{T+h\mid T}^2 = \omega + \alpha\,\sigma_{T+h-1\mid T}^2 + \gamma\,\E[x_{T+h-1}^2\mid\Info_T].\label{eq:fh}
+\end{equation}
+Since $\{x_t\}$ is a stationary AR(1), iterating $x_{T+h-1}=\phi_3^{h-1}x_T+\sum_{j=0}^{h-2}\phi_3^{j}\eta_{T+h-1-j}$ gives
+\begin{equation*}
+\E[x_{T+h-1}^2\mid\Info_T] = \phi_3^{2(h-1)} x_T^2 + \sigma_\eta^2\sum_{j=0}^{h-2}\phi_3^{2j}
+\;\;\xrightarrow{h\to\infty}\;\;\frac{\sigma_\eta^2}{1-\phi_3^2},
+\end{equation*}
+because $|\phi_3|<1$. Substituting this limit into \eqref{eq:fh}, the recursion converges (as $h\to\infty$) to the fixed-point equation
+\begin{equation*}
+\sigma_{\infty}^2 = \omega + \alpha\,\sigma_{\infty}^2 + \gamma\,\frac{\sigma_\eta^2}{1-\phi_3^2}
+\;\Longleftrightarrow\;
+\sigma_{\infty}^2 = \frac{\omega+\gamma\sigma_\eta^2/(1-\phi_3^2)}{1-\alpha} = \E[\varepsilon_t^2],
+\end{equation*}
+by \eqref{eq:Veps}. Since $0\leq\alpha<1$, the linear recursion \eqref{eq:fh} is a contraction with rate $\alpha$, so convergence is exponential. (The transient through $\E[x_{T+h-1}^2\mid\Info_T]$ decays at the additional rate $\phi_3^2$.)
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (6) -- GMM under non-Gaussian $z_t$}
+% ─────────────────────────────────────────────────────────────────────────────
+
+Suppose now that $z_t$ is i.i.d.\ with $\E[z_t]=0$ and $\E[z_t^2]=1$, but otherwise unrestricted in distribution. The processes $\{z_t\}$ and $\{\eta_t\}$ are independent of each other and of $\Info_{t-1}$.
+
+\paragraph{Step 1: Conditional moment restrictions.} At the true parameter $\psi_0$, since $\sigma_t\in\Info_{t-1}$ and $z_t\perp\Info_{t-1}$,
+\begin{align}
+\E[\varepsilon_t\mid\Info_{t-1}]
+&= \sigma_t\,\E[z_t\mid\Info_{t-1}] = \sigma_t\cdot 0 = 0,\label{eq:mom1}\\
+\E[\varepsilon_t^2-\sigma_t^2\mid\Info_{t-1}]
+&= \sigma_t^2\big(\E[z_t^2\mid\Info_{t-1}]-1\big) = \sigma_t^2\,(1-1) = 0,\label{eq:mom2}
+\end{align}
+which are the restrictions in (5.9).
+
+\paragraph{Step 2: From conditional to unconditional moments via instruments.} Any vector $w_t$ that is $\Info_{t-1}$-measurable yields a valid unconditional moment by the law of iterated expectations:
+\begin{equation*}
+\E[\varepsilon_t\cdot w_t]=\E\!\big[w_t\,\E[\varepsilon_t\mid\Info_{t-1}]\big]=0,\quad
+\E[(\varepsilon_t^2-\sigma_t^2)\cdot w_t]=0.
+\end{equation*}
+The $y$-equation has five parameters $\theta_y=(\phi_1,\phi_2,\omega,\alpha,\gamma)'$, so we need at least five linearly independent moment functions. A natural just-identified choice is:
+\begin{align}
+g_t^{(\text{mean})}(\theta_y) &= \varepsilon_t(\theta_y)\,\begin{pmatrix} y_{t-1}\\ x_{t-1}\end{pmatrix}\in\mathbb{R}^{2},\label{eq:g1}\\
+g_t^{(\text{var})}(\theta_y) &= \big(\varepsilon_t(\theta_y)^2-\sigma_t^2(\theta_y)\big)\begin{pmatrix} 1\\ \varepsilon_{t-1}(\theta_y)^2\\ x_{t-1}^2\end{pmatrix}\in\mathbb{R}^{3},\label{eq:g2}
+\end{align}
+where $\varepsilon_t(\theta_y)=y_t-\phi_1 y_{t-1}-\phi_2 x_{t-1}$ and $\sigma_t^2(\theta_y)=\omega+\alpha\varepsilon_{t-1}(\theta_y)^2+\gamma x_{t-1}^2$. All five components are $\Info_{t-1}$-measurable instruments multiplied by either $\varepsilon_t$ or $\varepsilon_t^2-\sigma_t^2$, so \eqref{eq:mom1}--\eqref{eq:mom2} imply $\E[g_t(\theta_{y,0})]=0$ with
+\begin{equation*}
+g_t(\theta_y) = \big(g_t^{(\text{mean})}(\theta_y)',\,g_t^{(\text{var})}(\theta_y)'\big)' \in \mathbb{R}^{5}.
+\end{equation*}
+The instruments $\{1,\varepsilon_{t-1}^2,x_{t-1}^2\}$ in \eqref{eq:g2} are the canonical choices for identifying $(\omega,\alpha,\gamma)$, mirroring the regressors of the ARCH-X variance equation; the instruments $\{y_{t-1},x_{t-1}\}$ in \eqref{eq:g1} mirror those of the mean equation.
+
+\paragraph{Step 3: GMM estimator.} Let $\bar{g}_T(\theta_y)=T^{-1}\sum_{t=1}^{T}g_t(\theta_y)$ and $W_T$ a sequence of positive-definite weight matrices with $W_T\xrightarrow{p}W$. The GMM estimator is
+\begin{equation}
+\widehat{\theta}_y^{\,\text{GMM}}=\arg\min_{\theta_y}\;T\,\bar{g}_T(\theta_y)'\,W_T\,\bar{g}_T(\theta_y).\label{eq:gmm-obj}
+\end{equation}
+With $\dim g_t=\dim\theta_y=5$ the model is exactly identified, so the criterion attains zero at $\widehat{\theta}_y^{\,\text{GMM}}$ and $W_T$ is irrelevant for the point estimator. Under standard regularity (identification: $\E[g_t(\theta_y)]=0$ iff $\theta_y=\theta_{y,0}$; stationarity and weak dependence; differentiability and existence of moments),
+\begin{equation*}
+\sqrt{T}\big(\widehat{\theta}_y^{\,\text{GMM}}-\theta_{y,0}\big)\xrightarrow{d} N\!\big(0,\,(D'WD)^{-1}D'WSWD(D'WD)^{-1}\big),
+\end{equation*}
+with $D=\E[\partial g_t(\theta_{y,0})/\partial\theta_y']$ and $S=\sum_{j=-\infty}^{\infty}\E[g_t(\theta_{y,0})g_{t-j}(\theta_{y,0})']$. In the present setting the conditional moments \eqref{eq:mom1}--\eqref{eq:mom2} imply that $\{g_t(\theta_{y,0})\}$ is a martingale difference sequence with respect to $\{\Info_t\}$, so $S=\E[g_t(\theta_{y,0})g_t(\theta_{y,0})']$ (no autocovariance terms) and consistent estimation of $S$ does not require HAC corrections.
+
+\paragraph{Remark.} Augmenting \eqref{eq:g1}--\eqref{eq:g2} with additional lagged instruments produces an over-identified system; in that case the efficient choice $W_T=\widehat{S}^{-1}$ minimises the asymptotic variance and yields Hansen's $J$-test of the over-identifying restrictions. Either way, no assumption on $z_t$ beyond $\E[z_t]=0$ and $\E[z_t^2]=1$ is needed.
+
+% ─────────────────────────────────────────────────────────────────────────────
+\subsection*{Question (7) -- Testing $H_0:\gamma=0$}
+% ─────────────────────────────────────────────────────────────────────────────
+
+By assumption, $\sqrt{T}(\widehat{\theta}_y^{\,\text{GMM}}-\theta_{y,0})\xrightarrow{d} N(0,V)$ for some positive-definite $V$, and a consistent estimator $\widehat{V}\xrightarrow{p}V$ is available from the GMM output (the sandwich formula in Step~3 above, which simplifies under the m.d.s.\ property to $V=(D'S^{-1}D)^{-1}$ for the efficient estimator).
+
+\paragraph{Wald test.} Let $R=(0,0,0,0,1)\in\mathbb{R}^{1\times 5}$ select $\gamma$ from $\theta_y$, so that $R\theta_y=\gamma$. Under $H_0:\gamma=0$, $\sqrt{T}\,R\,\widehat{\theta}_y^{\,\text{GMM}}\xrightarrow{d} N(0,RVR')=N(0,V_{\gamma\gamma})$ and
+\begin{equation}
+\xi_W \;=\; T\,\big(R\,\widehat{\theta}_y^{\,\text{GMM}}\big)\!\!\,'\big(R\,\widehat{V}\,R'\big)^{-1}\big(R\,\widehat{\theta}_y^{\,\text{GMM}}\big)
+\;=\; T\,\frac{\widehat{\gamma}^{\,2}}{\widehat{V}_{\gamma\gamma}}\;\xrightarrow{d}\;\chi^2(1).\label{eq:wald}
+\end{equation}
+Equivalently, the $t$-statistic $t_\gamma=\sqrt{T}\,\widehat{\gamma}/\sqrt{\widehat{V}_{\gamma\gamma}}\xrightarrow{d} N(0,1)$. Reject $H_0$ at level $\alpha^{*}$ if $\xi_W>\chi^2_{1-\alpha^{*}}(1)$ (or, two-sidedly, $|t_\gamma|>z_{1-\alpha^{*}/2}$).
+
+\paragraph{Boundary remark.} Strictly speaking, $\gamma\geq 0$ is a maintained restriction of the model, so $H_0:\gamma=0$ places the parameter on the boundary of $\Theta$. The asymptotically valid distribution of the one-sided likelihood-ratio analogue is then a $\tfrac{1}{2}\chi^2(0)+\tfrac{1}{2}\chi^2(1)$ mixture (cf.\ the standard boundary result for testing $H_0:\alpha=0$ in the ARCH model). Using the standard $\chi^2(1)$ critical values for the two-sided Wald \eqref{eq:wald} is conservative in this case.
 
 \end{document}
