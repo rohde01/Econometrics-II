@@ -23,13 +23,13 @@
 
 \maketitle
 % ─────────────────────────────────────────────────────────────────────────────
-\section{Part 3 - The Additional Assignment}
+\part{Part 3 - The Additional Assignment}
 % ─────────────────────────────────────────────────────────────────────────────
 
 Throughout, we work with the VAR(1) model (5.1)--(5.3) and, for Questions~(3)--(7), the modified specification (5.5)--(5.7). The stationarity assumptions $|\phi_1|<1$ and $|\phi_3|<1$ are maintained.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (1) -- Reduced-form impulse responses}
+\section*{Question (1) -- Reduced-form impulse responses}
 % ─────────────────────────────────────────────────────────────────────────────
 
 \paragraph{(a) Closed form for $\phi_1\neq\phi_3$.} We show by induction on $k\geq 1$ that
@@ -75,7 +75,7 @@ Hence
 \textit{Interpretation.} This is the $(1,2)$-element of $(I-\Phi)^{-1}=\sum_{k=0}^{\infty}\Phi^{k}$ (which converges since both eigenvalues of $\Phi$ lie strictly inside the unit circle), and it measures the long-run effect on $y$ of a unit innovation in $\varepsilon_{2,t}$.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (2) -- OLS consistency under conditional heteroskedasticity}
+\section*{Question (2) -- OLS consistency under conditional heteroskedasticity}
 % ─────────────────────────────────────────────────────────────────────────────
 
 We now suppose $\varepsilon_t=H_t^{1/2}u_t$ with $u_t$ i.i.d., $\E[u_t]=0$, $\Var(u_t)=I_2$, and $H_t$ a positive-definite, $\Info_{t-1}$-measurable conditional covariance matrix. The process $\{\varepsilon_t\}$ is assumed stationary.
@@ -107,7 +107,7 @@ the first limit being positive definite (otherwise some linear combination of $Z
 \paragraph{Caveats.} Although consistent, OLS is no longer efficient: the Gauss--Markov / MLE-equals-OLS argument relied on $\E[\varepsilon_t\varepsilon_t'\mid\Info_{t-1}]=\Sigma$ being constant, which now fails. Two practical implications: (1) standard errors must be made heteroskedasticity-consistent (sandwich/HCSE form), and (2) an estimator that models $H_t$ explicitly (e.g.\ multivariate GARCH-based quasi-MLE) is asymptotically more efficient.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (3) -- Unconditional variance in the ARCH-X model}
+\section*{Question (3) -- Unconditional variance in the ARCH-X model}
 % ─────────────────────────────────────────────────────────────────────────────
 
 We work with the modified model (5.5)--(5.7). Assuming a stationary solution exists, $\E[\varepsilon_t^2]$ is constant in $t$. By the law of iterated expectations,
@@ -136,7 +136,7 @@ Under these, the numerator of \eqref{eq:Veps} is the sum of two non-negative ter
 \paragraph{Comparison with standard ARCH(1).} Setting $\gamma=0$ reduces \eqref{eq:Veps} to the familiar ARCH(1) unconditional variance $\omega/(1-\alpha)$ (cf.\ \S2 of the ARCH lecture notes). The additional term $\gamma\sigma_\eta^2/[(1-\alpha)(1-\phi_3^2)]$ captures the contribution of the persistent exogenous regressor $x_{t-1}^2$ to the unconditional variance of $\varepsilon_t$: a more persistent $x_t$ (larger $\phi_3^2$) or a more variable $\eta_t$ (larger $\sigma_\eta^2$) inflates $\E[\varepsilon_t^2]$, and the effect is amplified by the ARCH feedback through the factor $1/(1-\alpha)$.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (4) -- Conditional joint density and log-likelihood}
+\section*{Question (4) -- Conditional joint density and log-likelihood}
 % ─────────────────────────────────────────────────────────────────────────────
 
 \paragraph{Factorization.} Conditional on $\Info_{t-1}$, the quantities $\sigma_t^2=\omega+\alpha\varepsilon_{t-1}^2+\gamma x_{t-1}^2$ and $\phi_3 x_{t-1}$ are constants (deterministic functions of the conditioning information and $\psi$). Since $z_t$ and $\eta_t$ are mutually independent and independent of $\Info_{t-1}$, the pair $(y_t,x_t)=(\phi_1 y_{t-1}+\phi_2 x_{t-1}+\sigma_t z_t,\,\phi_3 x_{t-1}+\eta_t)$ is, given $\Info_{t-1}$, a function of two independent random variables. Hence
@@ -172,7 +172,7 @@ where $\theta_y=(\phi_1,\phi_2,\omega,\alpha,\gamma)'$ and $\theta_x=(\phi_3,\si
 This is the standard cut argument of the lecture notes on conditional models: under independence of the components and variation-free parameter spaces, the marginal model carries no information about $\theta_y$ and the conditional model carries no information about $\theta_x$, so equation-by-equation estimation is fully efficient (in particular, $\widehat{\theta}_x$ is just the OLS estimator of the AR(1) for $x_t$, and $\widehat{\theta}_y$ is the (Q)MLE of the conditionally-Gaussian ARCH-X model for $y_t$).
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (5) -- Multi-step conditional variance forecasts}
+\section*{Question (5) -- Multi-step conditional variance forecasts}
 % ─────────────────────────────────────────────────────────────────────────────
 
 \paragraph{(a) One- and two-step forecasts.} Since $\sigma_{T+1}^2=\omega+\alpha\varepsilon_T^2+\gamma x_T^2$ is $\Info_T$-measurable,
@@ -213,7 +213,7 @@ because $|\phi_3|<1$. Substituting this limit into \eqref{eq:fh}, the recursion 
 by \eqref{eq:Veps}. Since $0\leq\alpha<1$, the linear recursion \eqref{eq:fh} is a contraction with rate $\alpha$, so convergence is exponential. (The transient through $\E[x_{T+h-1}^2\mid\Info_T]$ decays at the additional rate $\phi_3^2$.)
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (6) -- GMM under non-Gaussian $z_t$}
+\section*{Question (6) -- GMM under non-Gaussian $z_t$}
 % ─────────────────────────────────────────────────────────────────────────────
 
 Suppose now that $z_t$ is i.i.d.\ with $\E[z_t]=0$ and $\E[z_t^2]=1$, but otherwise unrestricted in distribution. The processes $\{z_t\}$ and $\{\eta_t\}$ are independent of each other and of $\Info_{t-1}$.
@@ -256,7 +256,7 @@ with $D=\E[\partial g_t(\theta_{y,0})/\partial\theta_y']$ and $S=\sum_{j=-\infty
 \paragraph{Remark.} Augmenting \eqref{eq:g1}--\eqref{eq:g2} with additional lagged instruments produces an over-identified system; in that case the efficient choice $W_T=\widehat{S}^{-1}$ minimises the asymptotic variance and yields Hansen's $J$-test of the over-identifying restrictions. Either way, no assumption on $z_t$ beyond $\E[z_t]=0$ and $\E[z_t^2]=1$ is needed.
 
 % ─────────────────────────────────────────────────────────────────────────────
-\subsection*{Question (7) -- Testing $H_0:\gamma=0$}
+\section*{Question (7) -- Testing $H_0:\gamma=0$}
 % ─────────────────────────────────────────────────────────────────────────────
 
 By assumption, $\sqrt{T}(\widehat{\theta}_y^{\,\text{GMM}}-\theta_{y,0})\xrightarrow{d} N(0,V)$ for some positive-definite $V$, and a consistent estimator $\widehat{V}\xrightarrow{p}V$ is available from the GMM output (the sandwich formula in Step~3 above, which simplifies under the m.d.s.\ property to $V=(D'S^{-1}D)^{-1}$ for the efficient estimator).
