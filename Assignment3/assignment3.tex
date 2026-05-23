@@ -70,13 +70,13 @@ Here $\beta$ contains the co-integrating vectors and $\alpha_h, \alpha_r, \alpha
 \[
 \mathrm{LR}_{\mathrm{trace}}(r_0) = -T\sum_{i=r_0+1}^{p}\ln(1-\hat{\lambda}_i),
 \]
-where $\hat\lambda_i$ are the ordered eigenvalues from the reduced-rank regression. The trace statistic has a non-standard asymptotic distribution depending on the deterministic specification; we use the constant-in-CI / constant-outside-CI variant compatible with an unrestricted constant and the Johansen (1995) critical values. The procedure is sequential, starting at $r_0=0$ and stopping at the first non-rejection.
+where $\hat\lambda_i$ are the ordered eigenvalues from the reduced-rank regression. The trace statistic has a non-standard asymptotic distribution depending on the deterministic specification; we use the case of an unrestricted constant in the VECM and the corresponding Johansen (1995) critical values. The procedure is sequential, starting at $r_0=0$ and stopping at the first non-rejection.
 
 \paragraph{Restrictions on $\beta$.} A linear restriction of the form $\beta = H\phi$ (equivalently $R'\beta=0$ for $R=H_\perp$) is tested by the LR statistic
 \[
 \mathrm{LR} = -T\sum_{i=1}^{r}\!\left[\ln(1-\tilde\lambda_i)-\ln(1-\hat\lambda_i)\right]\;\stackrel{d}{\to}\;\chi^2(s),
 \]
-where $\tilde\lambda_i$ are the restricted eigenvalues and $s$ is the number of restrictions. We use this to test the strict user-cost restriction $\beta_r=1$, in which case $H=\bigl((1,-1,0)',(0,0,1)'\bigr)$ and $s=1$.
+where $\tilde\lambda_i$ are the restricted eigenvalues and $s$ is the number of restrictions. We use this to test the strict user-cost restriction $\beta_r=1$, in which case $H=\bigl((1,-1,0)',(0,0,1)'\bigr)$ and $s=1$. Although $\hat\beta$ is super-consistent and mixed-Gaussian (while $\hat\alpha$ is $\sqrt{T}$-Gaussian), the LR statistic for smooth restrictions of this form is still asymptotically $\chi^2(s)$ under standard regularity. An analogous LR test of $\alpha = A\psi$ (a restriction on the loadings) has distribution $\chi^2(r\cdot(p-m))$, with $m=\dim(\psi)$; in particular, weak exogeneity of variable $i$ for $\beta$ corresponds to setting the $i$-th row of $\alpha$ to zero.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Empirical Analysis}
@@ -111,6 +111,12 @@ Having found rank $r=1$, we estimate the CVAR and characterise the long-run rela
 	\label{fig:coint_fit}
 \end{figure}
 
+\subsection{Misspecification Diagnostics}
+
+Before testing the user-cost restriction, we assess whether the dynamic specification is adequate. Residual diagnostics in Table~\ref{tab:diagnostics} are mixed. The Portmanteau whiteness test ($p=0.30$) finds no remaining serial correlation, so the dynamic specification is statistically adequate in that dimension. The Jarque--Bera test strongly rejects normality, and ARCH-LM rejects homoskedasticity for the mortgage-rate residuals at the 5\% level ($p=0.022$) and is borderline for $h_t$ ($p=0.086$). These results support consistency of the rank estimate (which does not rely on Gaussianity), but the violations of normality and homoskedasticity imply that the standard errors on $\beta$ and $\alpha$ should be read with caution and that asymptotic-normality based tests are at best approximate; the post-2021 interest-rate shock is the likely driver. The LR statistics reported below remain asymptotically $\chi^2$ under the maintained assumptions, but their finite-sample $p$-values should be treated as approximate.
+
+\input{tables/table6_diagnostics.tex}
+
 \subsection{Preferred CVAR and the User-Cost Restriction}
 
 Normalising on house prices, the estimated long-run relation is
@@ -119,15 +125,9 @@ Normalising on house prices, the estimated long-run relation is
 \end{equation}
 with ML standard errors of $0.0467$ on the rent coefficient and $0.0068$ on the mortgage-rate coefficient. The rent elasticity is statistically and economically larger than one (a $z$-ratio of $(1.4918-1)/0.0467 \approx 10.5$ rejects $\beta_r=1$ at any conventional level), and the mortgage coefficient is small, statistically insignificant ($t\approx 1.25$), and has the wrong sign relative to the user-cost prediction $\beta_2<0$. The formal Johansen LR test of the strict user-cost restriction $\beta_r=1$ in Table~\ref{tab:restriction_test} corroborates this: the LR statistic of $14.46$ has a $\chi^2(1)$ $p$-value of $0.0001$, so we strongly reject unit rent elasticity. The data support a stable long-run link between house prices, rents, and the mortgage rate, but they reject the exact sign and magnitude pattern of the textbook model.
 
+The adjustment loadings indicate how equilibrium is restored. The point estimate $\hat\alpha_m=0.3958$ looks large but has standard error $0.5380$, so a $t$-ratio of $0.74$ means we cannot distinguish $\alpha_m$ from zero; the mortgage equation's apparent correction is not statistically supported. The loadings $\hat\alpha_h=0.0156$ ($t\approx 3.2$) and $\hat\alpha_r=0.0091$ ($t\approx 5.0$) are statistically significant but economically tiny. To make this precise we formally test weak exogeneity of the mortgage rate for $\beta$, i.e.\ the restriction $\alpha_m=0$, using the Johansen LR procedure on $\alpha = A\psi$ with $A=\bigl((1,0,0)',(0,1,0)'\bigr)$. Table~\ref{tab:restriction_test} reports an LR statistic of $0.45$ with $\chi^2(1)$ $p$-value $0.50$, so we do not reject weak exogeneity of $m_t$. The economic picture is therefore that short-run correction is borne by the two slow-moving prices ($h_t$ and $r_t$), with the mortgage rate behaving as the (weakly) exogenous driver of the system --- which is again the opposite of the user-cost story, in which house prices adjust to the rent--cost wedge.
+
 \input{tables/table7_restriction_test.tex}
-
-The adjustment loadings indicate how equilibrium is restored. The mortgage equation carries almost all of the short-run correction ($\hat\alpha_m=0.3958$, though imprecisely estimated), while $\hat\alpha_h=0.0156$ and $\hat\alpha_r=0.0091$ are statistically different from zero but economically tiny. This is the opposite of the user-cost story, in which house prices adjust to the rent-cost wedge.
-
-\subsection{Misspecification Diagnostics}
-
-Residual diagnostics in Table~\ref{tab:diagnostics} are mixed. The Portmanteau whiteness test ($p=0.30$) finds no remaining serial correlation, so the dynamic specification is statistically adequate in that dimension. The Jarque--Bera test strongly rejects normality, and ARCH-LM rejects homoskedasticity for the mortgage-rate residuals at the 5\% level ($p=0.022$) and is borderline for $h_t$ ($p=0.086$). These results support consistency of the rank estimate (which does not rely on Gaussianity), but the violations of normality and homoskedasticity imply that the standard errors on $\beta$ and $\alpha$ should be read with caution and that asymptotic-normality based tests are at best approximate; the post-2021 interest-rate shock is the likely driver.
-
-\input{tables/table6_diagnostics.tex}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Discussion}
