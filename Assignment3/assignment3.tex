@@ -10,8 +10,6 @@
 \usepackage{caption}
 \usepackage{float}
 \usepackage{hyperref}
-\usepackage{pgfplots}
-\usetikzlibrary{intersections, patterns, decorations.markings, calc}
 
 \title{Econometrics II -- Assignment 3:\\
 A Dynamic Model for U.S. House Prices}
@@ -24,23 +22,23 @@ A Dynamic Model for U.S. House Prices}
 \section{Introduction}
 % ─────────────────────────────────────────────────────────────────────────────
 
-This report examines whether U.S. house prices are linked to fundamentals through the long-run relationship
+Housing is the largest asset on the balance sheet of most U.S.\ households and house-price swings have, historically, propagated to the wider macro\-economy; the user-cost framework predicts that, in equilibrium, prices are tied to rents and to the mortgage rate. This report tests that prediction by estimating the long-run relation
 \begin{equation}
     h_t = \alpha + \beta_1 r_t + \beta_2 m_t,
 \end{equation}
-where $h_t$ is log house prices, $r_t$ is log rents, and $m_t$ is the mortgage rate. Using monthly data for 2012M1--2023M12, we test whether these variables are co-integrated and, if so, how deviations from equilibrium are corrected over time in a CVAR/VECM framework.
+where $h_t$ is log house prices, $r_t$ is log rent, and $m_t$ is the 30-year fixed mortgage rate. Using monthly data for 2012M1--2023M12, we estimate a CVAR with $k=4$ lags and an unrestricted constant by Gaussian maximum likelihood, test the strict user-cost restriction $\beta_1=1$ by a Johansen LR test, and check the sensitivity of the conclusion to extending the sample back to 2000M1.
 \newline
 \newline
-The empirical analysis first evaluates integration properties with ADF tests, then selects lag length in a VAR, determines co-integration rank with Johansen trace tests, and finally estimates the preferred CVAR specification with diagnostic checks before conclusions are drawn.
+We find one co-integrating relation, but a rent elasticity statistically above one and a mortgage coefficient indistinguishable from zero, so the strict user-cost benchmark is rejected; equilibrium adjustment is borne almost entirely by the mortgage rate, and the finding is sensitive to the inclusion of the 2008-09 crisis years.
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Description of the Data}
 % ─────────────────────────────────────────────────────────────────────────────
 
 The data come from \texttt{Assignment\_3.xlsx} and are based on FRED series for the S\&P/Case-Shiller U.S.
-National Home Price Index, CPI rent of primary residence, and the 30-year fixed mortgage rate. The transformed variables are $h_t = \log(\text{HousePrice})$, $r_t = \log(\text{Rent})$, and $m_t = \text{MortgageRate}$. The effective sample contains 144 monthly observations.
+National Home Price Index, the CPI for rent of primary residence, and the 30-year fixed mortgage rate. The transformed variables are $h_t = \log(\text{HousePrice})$, $r_t = \log(\text{Rent})$, and $m_t = \text{MortgageRate}$. The effective sample contains 144 monthly observations.
 \newline
 \newline
-Figure~\ref{fig:series_panel} shows that both $h_t$ and $r_t$ trend upward over the sample, while $m_t$ is much more cyclical and rises sharply in 2022--2023. This visual pattern is consistent with non-stationary behavior in the first two series and motivates a co-integration analysis rather than a stationary VAR in levels.
+Figure~\ref{fig:series_panel} shows that both $h_t$ and $r_t$ trend upward, while $m_t$ is much more cyclical and rises sharply in 2022--2023. The visual pattern is consistent with non-stationary behaviour and motivates a co-integration analysis rather than a stationary VAR in levels. Table~\ref{tab:summary_stats} reports basic moments of the three series.
 
 \begin{figure}[H]
 	\centering
@@ -55,38 +53,30 @@ Figure~\ref{fig:series_panel} shows that both $h_t$ and $r_t$ trend upward over 
 \section{Econometric Theory}
 % ─────────────────────────────────────────────────────────────────────────────
 
-Let $X_t = (h_t, r_t, m_t)'$. Since the variables are treated as I(1), the natural framework is a VAR in levels rewritten as a co-integrated vector autoregression (CVAR):
+\paragraph{ADF testing.} For each variable $y_t$ we run an augmented Dickey--Fuller regression $\Delta y_t = (\rho-1) y_{t-1} + \sum_{j=1}^{p} \phi_j \Delta y_{t-j} + c + \varepsilon_t$ and test $H_0:\rho=1$ against $\rho<1$. The statistic is the $t$-ratio on $(\rho-1)$ and its asymptotic distribution is the non-standard Dickey--Fuller distribution (not $N(0,1)$); we use the constant-only critical values throughout. Lag length is selected by AIC.
+
+\paragraph{The CVAR.} Let $X_t = (h_t, r_t, m_t)'$. Since the three series are treated as I(1), the natural framework is a co-integrated vector autoregression in error-correction form,
 \begin{equation}
     \Delta X_t = \Pi X_{t-1} + \Gamma_1 \Delta X_{t-1} + \cdots + \Gamma_{k-1}\Delta X_{t-k+1} + \mu + e_t,
 \end{equation}
-where $\Pi$ contains long-run information, $\Gamma_j$ capture short-run dynamics, and $e_t$ is a zero-mean innovation process. If $\Pi$ has reduced rank $r$, it can be factorized as
-\[
-\Pi = \alpha\beta',
-\]
-so the model becomes
+where $\Pi$ contains long-run information, $\Gamma_j$ capture short-run dynamics, and $e_t$ is a zero-mean innovation. If $\Pi$ has reduced rank $r$, we can factorize $\Pi = \alpha\beta'$, so
 \begin{equation}
     \Delta X_t = \alpha\beta'X_{t-1} + \Gamma_1 \Delta X_{t-1} + \cdots + \Gamma_{k-1}\Delta X_{t-k+1} + \mu + e_t.
     \label{eq:cvar}
 \end{equation}
-Here, $\beta$ contains the co-integrating vectors (long-run equilibria), while $\alpha$ contains adjustment coefficients measuring how each variable responds to disequilibrium. The constant is unrestricted, so the long-run relation may include a non-zero intercept.
+Here $\beta$ contains the co-integrating vectors and $\alpha_h, \alpha_r, \alpha_m$ measure how house prices, rents, and the mortgage rate respectively respond to disequilibrium in the long-run relation. The constant is unrestricted, so the long-run relation may include a non-zero intercept. We estimate \eqref{eq:cvar} by Gaussian maximum likelihood, which requires (i) correct lag length, (ii) i.i.d.\ Gaussian innovations, and (iii) constant parameters; rank inference is robust to non-normality, but inference on individual coefficients relies on the latter two assumptions.
 
-The rank of $\Pi$ determines the system type. If $r=0$, there is no co-integration and the model reduces to a VAR in first differences. If $0<r<p$, there are $r$ stationary long-run relations among non-stationary variables. If $r=p$, the system is stationary in levels. In the present trivariate case ($p=3$), the key empirical question is therefore whether $r=0$ or $r\geq 1$.
-\newline
-\newline
-Co-integration rank is determined by Johansen trace tests. For null hypothesis $H_0:r\leq r_0$ against $H_1:r>r_0$, the trace statistic is
+\paragraph{Rank determination.} If $r=0$ there is no co-integration and the model reduces to a VAR in differences; if $0<r<p$ there are $r$ stationary long-run relations; if $r=p$ the system is stationary in levels. We test $H_0: \text{rank}(\Pi)\leq r_0$ against $H_1: \text{rank}(\Pi)>r_0$ by the Johansen trace statistic
 \[
 \mathrm{LR}_{\mathrm{trace}}(r_0) = -T\sum_{i=r_0+1}^{p}\ln(1-\hat{\lambda}_i),
 \]
-where $\hat{\lambda}_i$ are ordered generalized eigenvalues. The procedure is sequential, starting at $r_0=0$ and increasing until the first non-rejection.
-\newline
-With one co-integrating relation ($r=1$), normalization on house prices implies a long-run equation of the form
+where $\hat\lambda_i$ are the ordered eigenvalues from the reduced-rank regression. The trace statistic has a non-standard asymptotic distribution depending on the deterministic specification; we use the constant-in-CI / constant-outside-CI variant compatible with an unrestricted constant and the Johansen (1995) critical values. The procedure is sequential, starting at $r_0=0$ and stopping at the first non-rejection.
+
+\paragraph{Restrictions on $\beta$.} A linear restriction of the form $\beta = H\phi$ (equivalently $R'\beta=0$ for $R=H_\perp$) is tested by the LR statistic
 \[
-h_t = c + \beta_r r_t + \beta_m m_t + u_t, \qquad u_t \sim I(0).
+\mathrm{LR} = -T\sum_{i=1}^{r}\!\left[\ln(1-\tilde\lambda_i)-\ln(1-\hat\lambda_i)\right]\;\stackrel{d}{\to}\;\chi^2(s),
 \]
-This links directly to the user-cost benchmark: theory suggests $\beta_r=1$ and $\beta_m<0$. The first restriction corresponds to unit long-run rent elasticity, while the second reflects that higher mortgage rates increase user cost and reduce equilibrium house prices, ceteris paribus.
-\newline
-\newline
-Finally, although co-integration is identified in a system, unit-root tests on individual variables are informative for model motivation. Hence ADF tests in levels and first differences are reported alongside the system evidence. Estimation of the CVAR is carried out by Gaussian maximum likelihood, and inference on rank and long-run restrictions is based on likelihood-ratio statistics, with misspecification checks used to evaluate whether the preferred dynamic specification is statistically adequate.
+where $\tilde\lambda_i$ are the restricted eigenvalues and $s$ is the number of restrictions. We use this to test the strict user-cost restriction $\beta_r=1$, in which case $H=\bigl((1,-1,0)',(0,0,1)'\bigr)$ and $s=1$.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Empirical Analysis}
@@ -94,24 +84,23 @@ Finally, although co-integration is identified in a system, unit-root tests on i
 
 \subsection{Integration Properties}
 
-Table~\ref{tab:unit_root_tests} shows that the level series are clearly non-stationary: the ADF tests fail to reject a unit root for $h_t$, $r_t$, and $m_t$. In first differences, the null is rejected for $h_t$ and $m_t$, while $\Delta r_t$ is borderline at the 5\% level, which is not unusual in a short monthly sample with strong persistence. Taken together, the evidence is consistent with treating the three series as I(1) variables for co-integration analysis.
+Table~\ref{tab:unit_root_tests} reports ADF tests. The level series are clearly non-stationary: the null of a unit root is not rejected for $h_t$, $r_t$, or $m_t$. In first differences the null is rejected for $h_t$ and $m_t$ at the 5\% level, while $\Delta r_t$ is borderline ($p=0.087$), which is not unusual in a short monthly sample with strong persistence in rents. Taken together, the evidence is consistent with treating the three series as I(1) and proceeding to co-integration testing.
 
 \input{tables/table2_unit_root_tests.tex}
 
 \subsection{Lag Selection}
 
-The dynamic specification is chosen by estimating a VAR in levels and comparing lag-order criteria. Table~\ref{tab:lag_selection} shows that lag 4 minimizes both AIC and BIC, so the preferred VECM uses three lagged differences, that is, $k_{\Delta}=3$.
+Lag length is chosen by estimating a VAR in levels and minimising AIC; Table~\ref{tab:lag_selection} shows that AIC is minimised at lag 4, with BIC and HQIC also pointing to lag 4 within the displayed range. The preferred VECM therefore uses $k_{\Delta}=3$ lagged differences.
 
 \input{tables/table3_lag_selection.tex}
 
 \subsection{Co-Integration Rank}
 
-The Johansen trace test in Table~\ref{tab:johansen_trace} rejects the null of no co-integration, $r=0$, because the trace statistic 48.23 exceeds the 5\% critical value 29.80. The null $r\leq 1$ is not rejected, since the trace statistic 11.56 is below the 5\% critical value 15.49. Hence the preferred rank is $r=1$.
-\newline
-\newline
-This implies one long-run equilibrium relation among house prices, rents, and mortgage rates. The fitted long-run component is shown in Figure~\ref{fig:coint_fit}, and the corresponding parameter estimates are reported in Table~\ref{tab:cvar_estimates}.
+With the dynamic specification fixed, we test the co-integration rank. Table~\ref{tab:johansen_trace} reports the Johansen trace statistic at each $r_0$. For $H_0:r=0$ against $H_1:r\geq 1$, the statistic of $48.23$ exceeds the 5\% critical value of $29.80$, so we reject. For $H_0:r\leq 1$ against $H_1:r\geq 2$, the statistic of $11.56$ is below the 5\% critical value of $15.49$, so we do not reject. The preferred rank is therefore $r=1$.
 
 \input{tables/table4_johansen_trace.tex}
+
+Having found rank $r=1$, we estimate the CVAR and characterise the long-run relation. Figure~\ref{fig:coint_fit} plots the actual $h_t$ together with the fitted long-run component implied by the normalised co-integrating vector, and Table~\ref{tab:cvar_estimates} reports the implied coefficients with ML standard errors.
 
 \input{tables/table5_cvar_estimates.tex}
 
@@ -122,38 +111,38 @@ This implies one long-run equilibrium relation among house prices, rents, and mo
 	\label{fig:coint_fit}
 \end{figure}
 
-\subsection{Preferred CVAR and Interpretation}
+\subsection{Preferred CVAR and the User-Cost Restriction}
 
-Normalizing the co-integrating vector on house prices gives the estimated long-run relation
+Normalising on house prices, the estimated long-run relation is
 \begin{equation}
-	h_t = \hat c + 1.4918\, r_t + 0.0085\, m_t.
+	h_t = \hat c + 1.4918\,r_t + 0.0085\,m_t,
 \end{equation}
-The rent coefficient is positive and larger than one, so the strict unit-elasticity restriction $\beta_1=1$ is not supported by the point estimate. The mortgage-rate coefficient is also positive, which is not the sign predicted by the strict user-cost model. In other words, the data support a stable long-run link, but not the exact theoretical sign pattern imposed by the simplest version of the model.
-\newline
-The adjustment coefficients indicate how equilibrium is restored after a deviation from the long-run relation. The loading on mortgage rates, $\alpha_m = 0.3958$, is much larger in absolute terms than the loadings on house prices and rents, $\alpha_h = 0.0156$ and $\alpha_r = 0.0091$. This suggests that the mortgage-rate equation absorbs most of the short-run correction, while house prices and rents adjust only weakly.
+with ML standard errors of $0.0467$ on the rent coefficient and $0.0068$ on the mortgage-rate coefficient. The rent elasticity is statistically and economically larger than one (a $z$-ratio of $(1.4918-1)/0.0467 \approx 10.5$ rejects $\beta_r=1$ at any conventional level), and the mortgage coefficient is small, statistically insignificant ($t\approx 1.25$), and has the wrong sign relative to the user-cost prediction $\beta_2<0$. The formal Johansen LR test of the strict user-cost restriction $\beta_r=1$ in Table~\ref{tab:restriction_test} corroborates this: the LR statistic of $14.46$ has a $\chi^2(1)$ $p$-value of $0.0001$, so we strongly reject unit rent elasticity. The data support a stable long-run link between house prices, rents, and the mortgage rate, but they reject the exact sign and magnitude pattern of the textbook model.
 
-Figure~\ref{fig:coint_fit} shows that the fitted equilibrium component captures the low-frequency movement in house prices, even though short-run fluctuations remain substantial.
+\input{tables/table7_restriction_test.tex}
+
+The adjustment loadings indicate how equilibrium is restored. The mortgage equation carries almost all of the short-run correction ($\hat\alpha_m=0.3958$, though imprecisely estimated), while $\hat\alpha_h=0.0156$ and $\hat\alpha_r=0.0091$ are statistically different from zero but economically tiny. This is the opposite of the user-cost story, in which house prices adjust to the rent-cost wedge.
 
 \subsection{Misspecification Diagnostics}
 
-The residual diagnostics in Table~\ref{tab:diagnostics} are mixed. The Portmanteau whiteness test has $p=0.3012$, so there is no evidence of remaining serial correlation in the preferred specification. By contrast, the Jarque-Bera test strongly rejects normality, and the ARCH LM test for mortgage-rate residuals rejects homoskedasticity at the 5\% level.
-\newline
-These diagnostics matter for interpretation. The co-integration result is not driven by omitted residual autocorrelation, but the non-normality and ARCH effects indicate that the Gaussian likelihood approximation is imperfect, most likely because the post-2021 interest-rate shock is unusually large relative to the rest of the sample.
+Residual diagnostics in Table~\ref{tab:diagnostics} are mixed. The Portmanteau whiteness test ($p=0.30$) finds no remaining serial correlation, so the dynamic specification is statistically adequate in that dimension. The Jarque--Bera test strongly rejects normality, and ARCH-LM rejects homoskedasticity for the mortgage-rate residuals at the 5\% level ($p=0.022$) and is borderline for $h_t$ ($p=0.086$). These results support consistency of the rank estimate (which does not rely on Gaussianity), but the violations of normality and homoskedasticity imply that the standard errors on $\beta$ and $\alpha$ should be read with caution and that asymptotic-normality based tests are at best approximate; the post-2021 interest-rate shock is the likely driver.
 
 \input{tables/table6_diagnostics.tex}
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Discussion}
 
-The empirical evidence supports one co-integrating relation between house prices, rents, and mortgage rates in the 2012M1--2023M12 sample. However, the economic content of the relation is only partly aligned with the textbook user-cost model. The rent elasticity is above one rather than equal to one, and the mortgage-rate coefficient has the wrong sign in the estimated long-run relation. This suggests that the simplified model omits relevant channels, such as risk premia, financing conditions, or other time-varying user-cost components.
-\newline
-The diagnostics also show that the sample is not well behaved in a Gaussian sense. The combination of non-normal residuals and ARCH effects points to crisis-like observations and a major regime shift in the interest-rate environment. For that reason, the estimated equilibrium relation should be read as a useful average long-run approximation rather than a structural law. A natural robustness extension would be to repeat the exercise on a longer sample that includes the pre-2012 housing boom and crisis period.
+The empirical evidence supports one co-integrating relation between house prices, rents, and the mortgage rate in 2012M1--2023M12, but the economic content of the relation is only partly aligned with the textbook user-cost model: the rent elasticity is significantly above one, the mortgage-rate coefficient has the wrong sign and is insignificant, and the formal LR test of $\beta_r=1$ is rejected at $p=0.0001$. Simpler frictions absent from \eqref{eq:cvar} --- risk premia, refinancing constraints, supply rigidities, expectational shifts --- offer natural explanations for the elasticity exceeding one. Equilibrium is also restored in a way that the textbook does not predict: the mortgage rate, not house prices, does most of the short-run adjusting toward the long-run wedge.
+
+\input{tables/table8_robustness.tex}
+
+To gauge robustness we re-estimate the same specification on the longer sample 2000M1--2023M12, which includes the housing boom and the financial crisis. AIC again selects four lags, and the implied long-run coefficients ($\hat\beta_r=1.55$, $\hat\beta_m=0.17$) are qualitatively similar. The trace statistic at $r=0$ collapses to $19.6$, however --- below the 5\% critical value of $29.8$ --- so we cannot even reject no co-integration on the longer sample, and the LR test of $\beta_r=1$ has $p=0.10$, no longer significant at the 5\% level. The 2012--2023 finding is therefore sample-specific: the bubble--bust period is informative enough about the data-generating process that the post-crisis ``stable equilibrium'' interpretation does not survive its inclusion. This sensitivity, combined with the residual diagnostics, suggests the estimated long-run relation should be read as a useful approximation for the post-crisis regime rather than a structural law.
 
 % ─────────────────────────────────────────────────────────────────────────────
 \section{Conclusion}
 % ─────────────────────────────────────────────────────────────────────────────
 
-The preferred VAR lag length is 4, the Johansen trace test selects rank 1, and the corresponding CVAR therefore implies one long-run equilibrium relation among house prices, rents, and mortgage rates. The fitted relation is economically meaningful in the sense that house prices and rents move together over time, but the point estimates do not fully support the strict user-cost benchmark: the rent elasticity exceeds one and the mortgage-rate coefficient is positive. Equilibrium adjustment is mainly carried by the mortgage-rate equation, while residual autocorrelation is not a concern. The main caveat is non-normality and ARCH, which makes the sample sensitive to the post-2021 rate shock and motivates a robustness check on a longer sample.
+For 2012M1--2023M12 a CVAR with $k=4$ lags identifies one co-integrating relation among house prices, rents, and the mortgage rate. The strict user-cost benchmark is rejected: $\hat\beta_r=1.49$ with $p<10^{-4}$ for $H_0:\beta_r=1$, and the mortgage-rate coefficient is small, insignificant, and of the wrong sign. Equilibrium is restored mainly through the mortgage-rate equation, and the finding does not survive extension of the sample to include the 2000s boom and the 2008-09 crisis.
 
 \bigskip
 \noindent\textbf{References}
